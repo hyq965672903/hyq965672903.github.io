@@ -56,7 +56,7 @@ jobs:
       # 将编译后的博客文件推送到指定仓库
       run: |
         cd ./public && git init && git add .
-        git config --global http.sslverify “false”
+        git config --global http.sslverify "false"
         git config --global url.“https://”.insteadOf git://
         git config user.name "hyq"
         git config user.email "965672903@qq.com"
