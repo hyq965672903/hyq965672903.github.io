@@ -70,9 +70,6 @@ More info: [Deployment](https://hexo.io/docs/one-command-deployment.html)
 
 ### 测试
 
-
-
-```
 {% raw %}
 
 <div style="position: relative; width: 100%; height: 0; padding-bottom: 75%;">
@@ -80,5 +77,3 @@ More info: [Deployment](https://hexo.io/docs/one-command-deployment.html)
 </div>
 
 {% endraw %}
-```
-
