@@ -68,22 +68,10 @@ More info: [Deployment](https://hexo.io/docs/one-command-deployment.html)
     }
 ```
 
-### 测试
 
-{% raw %}
 
-<div style="position: relative; width: 100%; height: 0; padding-bottom: 10%;">
- <iframe src="//player.bilibili.com/player.html?aid=56300744&bvid=BV1B441137sW&cid=98396322&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
-</div>
-
-{% endraw %}
+手工梗
 
 
 
-```
-{% dplayer "url=https://www.bilibili.com/video/BV19v41187fe?share_source=copy_web" 
-"loop=yes" "theme=#FADFA3" "autoplay=false" "width=854px" "height=480px" %}
-```
-
-{% dplayer "url=https://www.bilibili.com/video/BV19v41187fe?share_source=copy_web" 
-"loop=yes" "theme=#FADFA3" "autoplay=false" "width=854px" "height=480px" %}
+<iframe height=700 width=1000 src="//player.bilibili.com/player.html?aid=247425240&bvid=BV19v41187fe&cid=319165979&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
