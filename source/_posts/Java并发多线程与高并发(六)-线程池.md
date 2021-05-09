@@ -1,5 +1,5 @@
 ---
-title: Java并发多线程与高并发-线程池
+title: Java并发多线程与高并发(六)-线程池
 index_img: https://file.hyqup.cn/img/2ae41a1d880511ebb6edd017c2d2eca2.png
 banner_img: /img/default.png
 abbrlink: 2e7e1308

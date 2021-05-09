@@ -1,5 +1,5 @@
 ---
-title: Java并发多线程与高并发-线程安全策略
+title: Java并发多线程与高并发(五)-线程安全策略
 index_img: https://file.hyqup.cn/img/16df9bf3400b4e6db45a87f643daf9c2.jpg
 banner_img: /img/default.png
 abbrlink: d50876c2
