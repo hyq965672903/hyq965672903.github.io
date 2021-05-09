@@ -23,6 +23,10 @@ archive:
   title: 归档
   subtitle: 归档
 
+photos:
+  title: 相册
+  subtitle: 相册
+
 tag:
   title: 标签
   subtitle: 标签
