@@ -9,7 +9,7 @@ categories:
 description:
 ---
 
-针对性的学习volitale、synconized、ThreadLocal 对象，了解特性，给予案例，及应用场景，简述Java为了线程安全做了哪些工作（如Atomic、CAS等）
+针对性的学习volitale、synconized、ThreadLocal 对象，了解特性，给予案例，及应用场景，简述Java为了线程安全做了哪些工作
 
 <!-- more -->
 
