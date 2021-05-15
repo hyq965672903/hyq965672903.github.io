@@ -5,7 +5,12 @@ banner_img: https://file.hyqup.cn/img/eb8bb9bc5bfd4b54ad376cd8c3fedc3f.jpg
 abbrlink: 5839849d
 date: 2021-04-28 23:40:36
 tags:
+- 单例模式
+- 对象发布
+- 对象溢出
 categories:
+- 并发
+- 多线程
 description:
 ---
 

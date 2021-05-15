@@ -5,7 +5,11 @@ banner_img: /img/default.png
 abbrlink: d50876c2
 date: 2021-04-28 23:40:44
 tags:
+- 不可变对象
+- 集合
 categories:
+- 并发
+- 多线程
 description:
 ---
 

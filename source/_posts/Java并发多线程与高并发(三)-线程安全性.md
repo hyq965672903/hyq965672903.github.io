@@ -5,7 +5,15 @@ banner_img: https://file.hyqup.cn/img/a9982f7441bd4e07a3b1a26af43457d9.jpg
 abbrlink: 6cdf97ff
 date: 2021-04-28 23:40:23
 tags:
+- volatile
+- synchronized
+- threadLocal
+- 原子性
+- 可见性
+- 一致性
 categories:
+- 并发
+- 多线程
 description:
 ---
 

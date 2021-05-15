@@ -5,7 +5,11 @@ banner_img: /img/default.png
 abbrlink: fc3007d7
 date: 2021-04-28 22:01:58
 tags:
+- 进程
+- 线程
 categories:
+- 并发
+- 多线程
 description: 
 ---
 
