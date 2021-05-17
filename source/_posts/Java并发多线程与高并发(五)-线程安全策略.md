@@ -1,15 +1,15 @@
 ---
 title: Java并发多线程与高并发(五)-线程安全策略
 index_img: https://file.hyqup.cn/img/16df9bf3400b4e6db45a87f643daf9c2.jpg
-banner_img: /img/default.png
+banner_img: https://file.hyqup.cn/img/16df9bf3400b4e6db45a87f643daf9c2.jpg
 abbrlink: d50876c2
 date: 2021-04-28 23:40:44
 tags:
 - 不可变对象
 - 集合
 categories:
-- 并发
-- 多线程
+- Java
+- Java进阶-并发
 description:
 ---
 

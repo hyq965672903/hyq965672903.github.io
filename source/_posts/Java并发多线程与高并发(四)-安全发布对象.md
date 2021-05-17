@@ -9,8 +9,8 @@ tags:
 - 对象发布
 - 对象溢出
 categories:
-- 并发
-- 多线程
+- Java
+- Java进阶-并发
 description:
 ---
 

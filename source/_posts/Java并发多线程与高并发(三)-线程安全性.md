@@ -12,8 +12,8 @@ tags:
 - 可见性
 - 一致性
 categories:
-- 并发
-- 多线程
+- Java
+- Java进阶-并发
 description:
 ---
 

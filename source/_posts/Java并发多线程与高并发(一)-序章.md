@@ -1,15 +1,15 @@
 ---
 title: Java并发多线程与高并发(一)-序章
 index_img: https://file.hyqup.cn/img/792a4b6934fc491b81342206e3192e59.png
-banner_img: /img/default.png
+banner_img: https://file.hyqup.cn/img/792a4b6934fc491b81342206e3192e59.png
 abbrlink: fc3007d7
 date: 2021-04-28 22:01:58
 tags:
 - 进程
 - 线程
 categories:
-- 并发
-- 多线程
+- Java
+- Java进阶-并发
 description: 
 ---
 
