@@ -25,7 +25,7 @@ ps：其中有许多细节都没说，比如这里的Map 存在多个，解决�
 
 
 
-##  准备工作
+#  准备工作
 
 ## 源码版本
 
@@ -74,7 +74,7 @@ zipStorePath=wrapper/dists
 
 ```
 
-IDEA需要配置一些东西来保证使用该wrapper 构建
+IDEA需要配置一些东西来保证使用该wrapper 构建 如果不行 **~~请删除 gradle user  home~~**
 
 ![image-20220423123042199](https://file.hyqup.cn/img/image-20220423123042199.png)
 
@@ -88,3 +88,53 @@ IDEA需要配置一些东西来保证使用该wrapper 构建
             }
 ```
 
+# Spring框架的整体流程
+
+![Spring架构原理图](https://file.hyqup.cn/img/Spring%E6%9E%B6%E6%9E%84%E5%8E%9F%E7%90%86%E5%9B%BE.jpg)
+
+> 图源自于 雷丰阳-设计模式
+
+整体流程分三大块
+
+1、首先从各个环境读取bean定义信息，可以从本地xml,注解，或者网络、磁盘读取到文档信息Document
+
+2、通过BeanDefinitionRegistry将信息读取为BeanDefinition 放入DefaultListableBeanFactory的beanDefinitionMap对象中去
+
+3、通过BeanDefinition的Bean定义信息来创建我们所需要的对象，创建过程十分复杂
+
+## 核心接口
+
+### 基础接口
+
+- Resource ResourceLoader 
+- BeanFactory
+- BeanDefinition
+- BeanDefinitionReader
+- BeanDefinitionRegistry
+- ApplicationContext
+- Aware
+
+### 生命周期-后置处理器
+
+- BeanFactoryPostProcessor
+- InitializingBean
+- BeanPostProcessor
+
+![image-20220423161153634](%E5%89%91%E6%8C%87%E6%BA%90%E7%A0%81-spring-%E4%B8%80-%E5%BA%8F%E7%AB%A0.assets/image-20220423161153634.png)
+
+
+
+日常开发使用注解开发比较多，其核心就是 **AnnotationConfigApplicationContext** 作为入口进行对象解析开始直接流程的
+
+
+
+
+
+![image-20220423162300061](https://file.hyqup.cn/img/image-20220423162300061.png)
+
+GenericApplicationContext ：
+private final DefaultListableBeanFactory beanFactory; 
+
+GenericApplicationContext 里面存在 DefaultListableBeanFactory  ，而DefaultListableBeanFactory  本质上又是一个档案馆，也就是第一大步骤获取到的bean定义信息等各种核心信息都会存到这里，后续IOC容器创建的bean信息来源基本上都来自于这里。
+
+上面的含义也就是  AnnotationConfigApplicationContext 组合了档案馆信息
