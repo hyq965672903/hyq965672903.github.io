@@ -582,7 +582,45 @@ public static void registerBeanPostProcessors(
 
 ## 类型三：InitializingBean 完成bean 初始化后的操作
 
-todo..
+堆栈方法追踪：getBean->doGetBean->getSingleton->createBean->doCreateBean->initializeBean->invokeInitMethods  
+
+```java
+protected void invokeInitMethods(String beanName, Object bean, @Nullable RootBeanDefinition mbd)
+      throws Throwable {
+
+   boolean isInitializingBean = (bean instanceof InitializingBean);
+   if (isInitializingBean && (mbd == null || !mbd.isExternallyManagedInitMethod("afterPropertiesSet"))) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("Invoking afterPropertiesSet() on bean with name '" + beanName + "'");
+      }
+      if (System.getSecurityManager() != null) {
+         try {
+            AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+               ((InitializingBean) bean).afterPropertiesSet();
+               return null;
+            }, getAccessControlContext());
+         }
+         catch (PrivilegedActionException pae) {
+            throw pae.getException();
+         }
+      }
+      else {
+         ((InitializingBean) bean).afterPropertiesSet();
+      }
+   }
+
+   if (mbd != null && bean.getClass() != NullBean.class) {
+      String initMethodName = mbd.getInitMethodName();
+      if (StringUtils.hasLength(initMethodName) &&
+            !(isInitializingBean && "afterPropertiesSet".equals(initMethodName)) &&
+            !mbd.isExternallyManagedInitMethod(initMethodName)) {
+         invokeCustomInitMethod(beanName, bean, mbd);
+      }
+   }
+}
+```
+
+bean 完成之后会执行InitializingBean.afterPropertiesSet
 
 ## 整个生命周期流程后置处理器干扰图
 
