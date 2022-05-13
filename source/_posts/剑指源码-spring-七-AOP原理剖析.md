@@ -72,21 +72,21 @@ public class LogAspect {
    public LogAspect(){
       System.out.println("LogAspect...");
    }
-   /**
-    * 定义切入点：对要拦截的方法进行定义与限制，如包、类
-    *
-    * 1、execution(public * *(..)) 任意的公共方法
-    * 2、execution（* set*（..）） 以set开头的所有的方法
-    * 3、execution（* com.hyqup.annotation.LoggerApply.*（..））com.lingyejun.annotation.LoggerApply这个类里的所有的方法
-    * 4、execution（* com.hyqup.annotation.*.*（..））com.lingyejun.annotation包下的所有的类的所有的方法
-    * 5、execution（* com.hyqup.annotation..*.*（..））com.lingyejun.annotation包及子包下所有的类的所有的方法
-    * 6、execution(* com.hyqup.annotation..*.*(String,?,Long)) com.lingyejun.annotation包及子包下所有的类的有三个参数，第一个参数为String类型，第二个参数为任意类型，第三个参数为Long类型的方法
-    * 7、execution(@annotation(xxx))
-    */
-   @Pointcut("execution(* com.hyq.practice.aop.HelloService.sayHello(..))")
-   private void cutMethod() {
+	/**
+	 * 定义切入点：对要拦截的方法进行定义与限制，如包、类
+	 *
+	 * 1、execution(public * *(..)) 任意的公共方法
+	 * 2、execution（* set*（..）） 以set开头的所有的方法
+	 * 3、execution（* com.hyq.practice.aop.LogAspect.*（..））   com.hyq.practice.aop.LogAspect这个类里的所有的方法
+	 * 4、execution（* com.hyq.practice.aop.*.*（..））   com.hyq.practice.aop包下的所有的类的所有的方法
+	 * 5、execution（* com.hyq.practice.aop..*.*（..））   com.hyq.practice.aop包及子包下所有的类的所有的方法
+	 * 6、execution(* com.hyq.practice.aop..*.*(String,?,Long))   com.hyq.practice.aop包及子包下所有的类的有三个参数，第一个参数为String类型，第二个参数为任意类型，第三个参数为Long类型的方法
+	 * 7、execution(@annotation(xxx))
+	 */
+	@Pointcut("execution(* com.hyq.practice.aop.HelloService.sayHello(..))")
+	private void cutMethod() {
 
-   }
+	}
 
 
 
@@ -369,9 +369,71 @@ ps:干扰需要切入的对象的HelloService创建过程，会生成相关代�
 
 容器刷新12大步之 finishBeanFactoryInitialization(beanFactory);里面 beanFactory.preInstantiateSingletons(); 完成对剩下单实例创建的过程中
 
+创建过程中BeanPostProcessor.postProcessAfterInitialization AOP开始增强，这个过程的时候bean已经生成，初始化的时候进行干预Bean
+
+代码位置AbstractAutoProxyCreator.postProcessAfterInitialization
+
+```java
+@Override
+public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
+   if (bean != null) {
+      Object cacheKey = getCacheKey(bean.getClass(), beanName);
+      if (this.earlyProxyReferences.remove(cacheKey) != bean) {
+         return wrapIfNecessary(bean, beanName, cacheKey);
+      }
+   }
+   return bean;
+}
+
+```
 
 
 
+这里会去找当前bean 的增强器，采用MethodMatcher通过正则表达式匹配切入点和目标类的方法。匹配完拿到目标类的增强器的时候，会执行extendAdvisors 创建一个增强器链，在第0位增加一个ExposeInvocationInterceptor拦截器（方法拦截器），接下来拿到了增强器就为当前目标类创建代理，创建时候判断当前对象是否有接口实现，**如果有则使用jdk动态代理创建，如果没有接口实现则采用CGlib来进行创建代理**
 
+```java
+protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
+   if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
+      return bean;
+   }
+   if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
+      return bean;
+   }
+   if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
+      this.advisedBeans.put(cacheKey, Boolean.FALSE);
+      return bean;
+   }
 
+   // Create proxy if we have advice.
+   Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
+   if (specificInterceptors != DO_NOT_PROXY) {
+      this.advisedBeans.put(cacheKey, Boolean.TRUE);
+      Object proxy = createProxy(
+            bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+      this.proxyTypes.put(cacheKey, proxy.getClass());
+      return proxy;
+   }
+
+   this.advisedBeans.put(cacheKey, Boolean.FALSE);
+   return bean;
+}
+```
+
+### 目标方法的执行
+
+当目标方法执行的时候，如helloService.sayHello。这个时候会来到这个代理类设置的回调（DynamicAdvisedInterceptor）里面执行intercept。执行期间将之前的增强器通过getInterceptorsAndDynamicInterceptionAdvice转化为方法拦截器 执行invoke 的时候，链式调用。
+
+代理对象（HelloService）包含拦截器，拦截器中包含增强器，执行的过程中会执行过滤器链，**责任链模式**
+
+- ExposeInvocationInterceptor 线程共享数据
+
+- MethodBeforeAdviceInterceptor 前置通知拦截器
+
+- MethodBeforeAdvice后置通知拦截器
+
+- AfterReturningAdviceInterceptor返回通知拦截器
+
+- AspectJAfterThrowingAdvice异常通知拦截器
+
+  拦截器链执行细节就不展开了
 
