@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring(四)-后置处理器干预生命周期
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://file.hyqup.cn/img/wallhaven-57z3r1.jpg
+banner_img: https://file.hyqup.cn/img/wallhaven-4yee5x.jpg
 date: 2022-04-25 20:27:38
 tags:
 categories:

@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring-(七)-AOP原理剖析
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://file.hyqup.cn/img/wallhaven-odgolp.jpg
+banner_img: https://file.hyqup.cn/img/wallhaven-nrmo9m.jpg
 date: 2022-05-12 22:22:15
 tags:
 categories:

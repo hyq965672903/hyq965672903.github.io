@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring(二)-BeanDefinitionRegistry将定义信息放入档案馆
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://file.hyqup.cn/img/wallhaven-0wd21x.jpg
+banner_img: https://file.hyqup.cn/img/wallhaven-0qoeoq.jpg
 date: 2022-04-23 16:32:46
 tags:
 categories:

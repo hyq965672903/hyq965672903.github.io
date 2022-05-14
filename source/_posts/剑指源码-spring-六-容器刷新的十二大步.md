@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring-(六)-容器刷新的十二大步
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://file.hyqup.cn/img/wallhaven-mdvrgm.jpg
+banner_img: https://file.hyqup.cn/img/wallhaven-m9orq9.jpg
 date: 2022-04-28 21:48:08
 tags:
 categories:
