@@ -24,7 +24,7 @@ description:
 
 将spi所在jar放在主程序的classpath中
 
-服务调用方用java.util.ServiceLoader，用服务接口为参数，去动态加载具体的实现类到JVM中
+服务调用方用java.util.ServiceLoader，用服务接口为参数，去动态加载具体的实现类到JVM中。
 
 ## 模块搭建
 
