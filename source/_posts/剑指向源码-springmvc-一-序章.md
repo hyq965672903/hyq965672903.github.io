@@ -1,7 +1,7 @@
 ---
 title: 剑指向源码-springmvc(一)-序章
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://file.hyqup.cn/img/wallhaven-nkorgd.jpg
+banner_img: https://file.hyqup.cn/img/wallhaven-mdvo58.jpg
 date: 2022-05-14 09:42:38
 tags:
 categories:
@@ -195,3 +195,351 @@ public class HelloController {
 
 http://localhost:8080/webmvc/say
 
+## 原理剖析
+
+> SpringMVC基于SPI启动了web容器，servlet定义ServletContainerInitializer。
+>
+
+### 主流程分析启动web容器
+
+servlet定义ServletContainerInitializer，
+
+![image-20220514235410561](https://file.hyqup.cn/img/image-20220514235410561.png)
+
+```java
+@HandlesTypes(WebApplicationInitializer.class)
+public class SpringServletContainerInitializer implements ServletContainerInitializer {
+
+   @Override
+   public void onStartup(@Nullable Set<Class<?>> webAppInitializerClasses, ServletContext servletContext)
+         throws ServletException {
+
+      List<WebApplicationInitializer> initializers = Collections.emptyList();
+
+      if (webAppInitializerClasses != null) {
+         initializers = new ArrayList<>(webAppInitializerClasses.size());
+         for (Class<?> waiClass : webAppInitializerClasses) {
+            // Be defensive: Some servlet containers provide us with invalid classes,
+            // no matter what @HandlesTypes says...
+            if (!waiClass.isInterface() && !Modifier.isAbstract(waiClass.getModifiers()) &&
+                  WebApplicationInitializer.class.isAssignableFrom(waiClass)) {
+               try {
+                  initializers.add((WebApplicationInitializer)
+                        ReflectionUtils.accessibleConstructor(waiClass).newInstance());
+               }
+               catch (Throwable ex) {
+                  throw new ServletException("Failed to instantiate WebApplicationInitializer class", ex);
+               }
+            }
+         }
+      }
+
+      if (initializers.isEmpty()) {
+         servletContext.log("No Spring WebApplicationInitializer types detected on classpath");
+         return;
+      }
+
+      servletContext.log(initializers.size() + " Spring WebApplicationInitializers detected on classpath");
+      AnnotationAwareOrderComparator.sort(initializers);
+      for (WebApplicationInitializer initializer : initializers) {
+         initializer.onStartup(servletContext);
+      }
+   }
+
+}
+```
+
+HandlesTypes 感兴趣的类WebApplicationInitializer，会去找到所有实现了WebApplicationInitializer的类，我们这里AppStarter就是实现了WebApplicationInitializer，启动时候执行WebApplicationInitializer.onStartup
+
+接下来逻辑：
+
+```java
+	// 创建一个webIOC容器，并注册主配置类吗  注解版的配置类注册进去
+	AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+	context.register(AppConfig.class);
+
+	// 创建并注册 DispatcherServlet
+	DispatcherServlet servlet = new DispatcherServlet(context);
+	ServletRegistration.Dynamic registration = servletContext.addServlet("app", servlet);
+	registration.setLoadOnStartup(1);
+	registration.addMapping("/");
+```
+
+准备一个空的webioc容器，准备一个DispatcherServlet，并将ioc容器传过去，并注册到ServletContext（Tomcat）中去。DispatcherServlet本质上也是一个servlet,所以servlet在执行init的时候就会将该ioc容器执行spring相关的refresh()逻辑将容器刷新。具体初始化逻辑会在HttpServletBean init重写，init有个抽象方法initServletBean，FrameworkServlet来实现initServletBean
+
+```java
+@Override
+protected final void initServletBean() throws ServletException {
+   getServletContext().log("Initializing Spring " + getClass().getSimpleName() + " '" + getServletName() + "'");
+   if (logger.isInfoEnabled()) {
+      logger.info("Initializing Servlet '" + getServletName() + "'");
+   }
+   long startTime = System.currentTimeMillis();
+
+   try {
+       //初始化web容器
+      this.webApplicationContext = initWebApplicationContext();
+      initFrameworkServlet();
+   }
+   catch (ServletException | RuntimeException ex) {
+      logger.error("Context initialization failed", ex);
+      throw ex;
+   }
+
+   if (logger.isDebugEnabled()) {
+      String value = this.enableLoggingRequestDetails ?
+            "shown which may lead to unsafe logging of potentially sensitive data" :
+            "masked to prevent unsafe logging of potentially sensitive data";
+      logger.debug("enableLoggingRequestDetails='" + this.enableLoggingRequestDetails +
+            "': request parameters and headers will be " + value);
+   }
+
+   if (logger.isInfoEnabled()) {
+      logger.info("Completed initialization in " + (System.currentTimeMillis() - startTime) + " ms");
+   }
+}
+```
+
+初始化代码
+
+```java
+protected WebApplicationContext initWebApplicationContext() {
+   WebApplicationContext rootContext =
+         WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+   WebApplicationContext wac = null;
+
+   if (this.webApplicationContext != null) {
+      // A context instance was injected at construction time -> use it
+      wac = this.webApplicationContext;
+      if (wac instanceof ConfigurableWebApplicationContext) {
+         ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) wac;
+         if (!cwac.isActive()) {
+            // The context has not yet been refreshed -> provide services such as
+            // setting the parent context, setting the application context id, etc
+            if (cwac.getParent() == null) {
+               // The context instance was injected without an explicit parent -> set
+               // the root application context (if any; may be null) as the parent
+               cwac.setParent(rootContext);
+            }
+            configureAndRefreshWebApplicationContext(cwac);
+         }
+      }
+   }
+   if (wac == null) {
+      // No context instance was injected at construction time -> see if one
+      // has been registered in the servlet context. If one exists, it is assumed
+      // that the parent context (if any) has already been set and that the
+      // user has performed any initialization such as setting the context id
+      wac = findWebApplicationContext();
+   }
+   if (wac == null) {
+      // No context instance is defined for this servlet -> create a local one
+      wac = createWebApplicationContext(rootContext);
+   }
+
+   if (!this.refreshEventReceived) {
+      // Either the context is not a ConfigurableApplicationContext with refresh
+      // support or the context injected at construction time had already been
+      // refreshed -> trigger initial onRefresh manually here.
+      synchronized (this.onRefreshMonitor) {
+         onRefresh(wac);
+      }
+   }
+
+   if (this.publishContext) {
+      // Publish the context as a servlet context attribute.
+      String attrName = getServletContextAttributeName();
+      getServletContext().setAttribute(attrName, wac);
+   }
+
+   return wac;
+}
+```
+
+#### 父子容器的概念引入
+
+以前xml配置springMVC的时候步骤，需要在web.xml中配置
+
+1、在web.xml配置ContextLoadListener,指定Spring配置文件位置
+
+2、在web.xml配置DispatcherServlet,指定SpringMVC配置文件的位置
+
+3、以上操作就会产生父子容器
+
+父容器：Root Spring配置文件进行包扫描并保存的组件的容器
+
+子容器：SpringMVC配置文件进行包扫描并保存的所有组件的容器
+
+cwac.setParent(rootContext);好处是容器之间的隔离，类似于Java中类加载的双亲委派模型
+
+### 基于两个事件回调启动了Spring和SpringMVC
+
+#### 第一个父容器相关
+
+AbstractAnnotationConfigDispatcherServletInitializer
+
+![image-20220515145511744](https://file.hyqup.cn/img/image-20220515145511744.png)
+
+AbstractContextLoaderInitializer 注册ContextLoaderListener，web应用启动以后（Tomcat加载应用以后）会执行ContextLoaderListener里面contextInitialized的逻辑，监听器机制，servlet的标准
+
+```java
+@Override
+public void onStartup(ServletContext servletContext) throws ServletException {
+   registerContextLoaderListener(servletContext);
+}
+```
+
+```
+protected void registerContextLoaderListener(ServletContext servletContext) {
+   WebApplicationContext rootAppContext = createRootApplicationContext();
+   if (rootAppContext != null) {
+      ContextLoaderListener listener = new ContextLoaderListener(rootAppContext);
+      listener.setContextInitializers(getRootApplicationContextInitializers());
+      servletContext.addListener(listener);
+   }
+   else {
+      logger.debug("No ContextLoaderListener registered, as " +
+            "createRootApplicationContext() did not return an application context");
+   }
+}
+```
+
+createRootApplicationContext由**孙子类**AbstractAnnotationConfigDispatcherServletInitializer 实现
+
+```java
+protected WebApplicationContext createRootApplicationContext() {
+   Class<?>[] configClasses = getRootConfigClasses();
+   if (!ObjectUtils.isEmpty(configClasses)) {
+      AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+      context.register(configClasses);
+      return context;
+   }
+   else {
+      return null;
+   }
+}
+```
+
+而 getRootConfigClasses 就是获取自子类的配置文件，也就是我们所说父子容器中父容器Spring组件相关的配置类
+
+#### 第二个子容器相关
+
+第二个我们发现 AbstractAnnotationConfigDispatcherServletInitializer  有一个getRootConfigClasses 同时也有一个getRootConfigClasses，获取和servlet相关的。追溯发现
+
+AbstractDispatcherServletInitializer
+
+```java
+protected void registerDispatcherServlet(ServletContext servletContext) {
+   String servletName = getServletName();
+   Assert.hasLength(servletName, "getServletName() must not return null or empty");
+
+   WebApplicationContext servletAppContext = createServletApplicationContext();
+   Assert.notNull(servletAppContext, "createServletApplicationContext() must not return null");
+
+   FrameworkServlet dispatcherServlet = createDispatcherServlet(servletAppContext);
+   Assert.notNull(dispatcherServlet, "createDispatcherServlet(WebApplicationContext) must not return null");
+   dispatcherServlet.setContextInitializers(getServletApplicationContextInitializers());
+
+   ServletRegistration.Dynamic registration = servletContext.addServlet(servletName, dispatcherServlet);
+   if (registration == null) {
+      throw new IllegalStateException("Failed to register servlet with name '" + servletName + "'. " +
+            "Check if there is another servlet registered under the same name.");
+   }
+
+   registration.setLoadOnStartup(1);
+   registration.addMapping(getServletMappings());
+   registration.setAsyncSupported(isAsyncSupported());
+
+   Filter[] filters = getServletFilters();
+   if (!ObjectUtils.isEmpty(filters)) {
+      for (Filter filter : filters) {
+         registerServletFilter(servletContext, filter);
+      }
+   }
+
+   customizeRegistration(registration);
+}
+```
+
+createServletApplicationContext 又是由**孙子类**AbstractAnnotationConfigDispatcherServletInitializer实现
+
+```java
+@Override
+protected WebApplicationContext createServletApplicationContext() {
+   AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+   Class<?>[] configClasses = getServletConfigClasses();
+   if (!ObjectUtils.isEmpty(configClasses)) {
+      context.register(configClasses);
+   }
+   return context;
+}
+```
+
+#### demo演示
+
+```java
+@ComponentScan(value = "cn.hyqup.web",excludeFilters = {
+      @ComponentScan.Filter(type = FilterType.ANNOTATION,value = Controller.class)
+})
+@Configuration
+public class SpringConfig {
+}
+```
+
+```java
+@ComponentScan(value = "cn.hyqup.web",includeFilters = {
+      @ComponentScan.Filter(type = FilterType.ANNOTATION,value = Controller.class)
+},useDefaultFilters = false)
+@Configuration
+public class SpringMVCConfig {
+}
+```
+
+```java
+public class QuickAppStater extends AbstractAnnotationConfigDispatcherServletInitializer {
+   /**
+    * 根容器的配置（Spring容器相关的配置）
+    * @return
+    */
+   @Override
+   protected Class<?>[] getRootConfigClasses() {
+      return new Class<?>[]{SpringConfig.class };
+   }
+
+   /**
+    * web容器相关的配置（SpringMVC的配置类）
+    * @return
+    */
+   @Override
+   protected Class<?>[] getServletConfigClasses() {
+      return new Class<?>[]{SpringMVCConfig.class };
+   }
+
+   /**
+    * Servlet的映射路径
+    * @return
+    */
+   @Override
+   protected String[] getServletMappings() {
+      return new String[]{"/"};
+   }
+}
+```
+
+继承了AbstractAnnotationConfigDispatcherServletInitializer，实现了快速启动spring容器和springmvc容器
+
+### 整体流程分析
+
+#### 代码阶段
+
+1. Tomcat启动后会扫描所有的WebApplicationInitializer执行onStartup方法，会扫描到我们所写的QuickAppStater，执行onStartup，会执行super.onStartup
+2. 会执行到AbstractDispatcherServletInitializer的方法首先执行父类AbstractContextLoaderInitializer去执行registerContextLoaderListener，会根据spring的配置类创建一个空容器AnnotationConfigWebApplicationContext，注解版本的。此时容器还未刷新，没有功能 
+3. AbstractDispatcherServletInitializer其次会执行registerDispatcherServlet注册DispatcherServlet，根据web相关的配置类AnnotationConfigWebApplicationContext，第二个容器创建出来
+
+#### 流程分析
+
+1. 首先按照代码阶段会将我们的父子容器创建出来，也就是两个AnnotationConfigWebApplicationContext，
+2. （父容器）web启动完成的时候，Tomcat触发监听器启动根容器，也就是ContextLoaderListener里面的contextInitialized进行initWebApplicationContext初始化，也就是会执行到refresh()逻辑装配Spring相关的容器（比如AOP、事务、IOC、自动装配（包括了service层、dao层））
+3. （子容器）由于DispatcherServlet本质上就是一个servlet,所以tomcat启动之后回调用init方法初始化，这个时候就是执行到对DispatcherServlet里面的AnnotationConfigWebApplicationContext进行refresh装配web相关的SpringMVC相关的容器（比如@Controller相关的）
+
+注意：由于设计上是子容器刷新的时候父容器已经刷新完毕，并且将父容器设置到子容器对象中，所以我们在controller（子容器）装配service（父容器）正常，而service装配controller就是不支持的
