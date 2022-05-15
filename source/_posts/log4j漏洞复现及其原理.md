@@ -1,7 +1,8 @@
 ---
 title: log4j漏洞复现及其原理
-index_img: https://file.hyqup.cn/img/gamersky_10origin_19_20169281140AB3.jpg
-banner_img: https://file.hyqup.cn/img/13.jpg
+index_img: 'https://file.hyqup.cn/img/gamersky_10origin_19_20169281140AB3.jpg'
+banner_img: 'https://file.hyqup.cn/img/13.jpg'
+abbrlink: 51961c7e
 date: 2022-05-07 22:31:13
 tags:
 categories:

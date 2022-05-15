@@ -1,12 +1,13 @@
 ---
 title: 剑指源码-spring(一)-序章
-index_img: https://file.hyqup.cn/img/wallhaven-0pgw19.jpg
-banner_img: https://file.hyqup.cn/img/wallhaven-g7gvo3.png
+index_img: 'https://file.hyqup.cn/img/wallhaven-0pgw19.jpg'
+banner_img: 'https://file.hyqup.cn/img/wallhaven-g7gvo3.png'
+categories:
+  - Java
+  - Spring源码
+abbrlink: 2db10d0a
 date: 2022-04-22 19:53:11
 tags:
-categories:
-- Java
-- Spring源码
 description:
 ---
 

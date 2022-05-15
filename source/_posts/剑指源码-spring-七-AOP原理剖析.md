@@ -1,12 +1,13 @@
 ---
 title: 剑指源码-spring-(七)-AOP原理剖析
-index_img: https://file.hyqup.cn/img/wallhaven-odgolp.jpg
-banner_img: https://file.hyqup.cn/img/wallhaven-nrmo9m.jpg
+index_img: 'https://file.hyqup.cn/img/wallhaven-odgolp.jpg'
+banner_img: 'https://file.hyqup.cn/img/wallhaven-nrmo9m.jpg'
+categories:
+  - Java
+  - Spring源码
+abbrlink: 5b245593
 date: 2022-05-12 22:22:15
 tags:
-categories:
-- Java
-- Spring源码
 description:
 ---
 

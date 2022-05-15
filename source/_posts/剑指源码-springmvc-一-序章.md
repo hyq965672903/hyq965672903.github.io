@@ -1,12 +1,11 @@
 ---
-title: 剑指源码-springmvc(一)-序章
+title: 剑指源码-springmvc-(一)-序章
 index_img: https://file.hyqup.cn/img/wallhaven-nkorgd.jpg
 banner_img: https://file.hyqup.cn/img/wallhaven-mdvo58.jpg
-date: 2022-05-14 09:42:38
+abbrlink: 9857fe7d
+date: 2022-05-15 17:55:00
 tags:
 categories:
--Java
--SpringMVC源码
 description:
 ---
 
@@ -30,7 +29,7 @@ description:
 
 ### 1、新增springmvcsource-test
 
-![image-20220514094502540](https://file.hyqup.cn/img/image-20220514094502540.png)
+![image-20220514094502540](%E5%89%91%E6%8C%87%E6%BA%90%E7%A0%81-springmvc-%E4%B8%80-%E5%BA%8F%E7%AB%A0.assets/image-20220514094502540-16526085257311.png)
 
 ### 2、引入相关依赖
 
@@ -59,15 +58,15 @@ ps:这里是**implementation**，这样lib才会打入war,从而Tomcat启动spri
 常用的是implementation、api、compileOnly三个依赖配置，含义如下：
 
 - implementation
-   与compile对应，会添加依赖到编译路径，并且会将依赖打包到输出（aar或apk），但是在编译时不会将依赖的实现暴露给其他module，也就是只有在运行时其他module才能访问这个依赖中的实现。使用这个配置，可以显著提升构建时间，因为它可以减少重新编译的module的数量。建议，尽量使用这个依赖配置。
+  与compile对应，会添加依赖到编译路径，并且会将依赖打包到输出（aar或apk），但是在编译时不会将依赖的实现暴露给其他module，也就是只有在运行时其他module才能访问这个依赖中的实现。使用这个配置，可以显著提升构建时间，因为它可以减少重新编译的module的数量。建议，尽量使用这个依赖配置。
 - api
-   与compile对应，功能完全一样，会添加依赖到编译路径，并且会将依赖打包到输出（aar或apk），与implementation不同，这个依赖可以传递，其他module无论在编译时和运行时都可以访问这个依赖的实现，也就是会泄漏一些不应该不使用的实现。举个例子，A依赖B，B依赖C，如果都是使用api配置的话，A可以直接使用C中的类（编译时和运行时），而如果是使用implementation配置的话，在编译时，A是无法访问C中的类的。
+  与compile对应，功能完全一样，会添加依赖到编译路径，并且会将依赖打包到输出（aar或apk），与implementation不同，这个依赖可以传递，其他module无论在编译时和运行时都可以访问这个依赖的实现，也就是会泄漏一些不应该不使用的实现。举个例子，A依赖B，B依赖C，如果都是使用api配置的话，A可以直接使用C中的类（编译时和运行时），而如果是使用implementation配置的话，在编译时，A是无法访问C中的类的。
 - compileOnly
-   与provided对应，Gradle把依赖加到编译路径，编译时使用，不会打包到输出（aar或apk）。这可以减少输出的体积，在只在编译时需要，在运行时可选的情况，很有用。
+  与provided对应，Gradle把依赖加到编译路径，编译时使用，不会打包到输出（aar或apk）。这可以减少输出的体积，在只在编译时需要，在运行时可选的情况，很有用。
 - runtimeOnly
-   与apk对应，gradle添加依赖只打包到APK，运行时使用，但不会添加到编译路径。这个没有使用过。
+  与apk对应，gradle添加依赖只打包到APK，运行时使用，但不会添加到编译路径。这个没有使用过。
 - annotationProcessor
-   与compile对应，用于注解处理器的依赖配置。
+  与compile对应，用于注解处理器的依赖配置。
 
 ### 3、编码
 
@@ -198,13 +197,12 @@ http://localhost:8080/webmvc/say
 ## 原理剖析
 
 > SpringMVC基于SPI启动了web容器，servlet定义ServletContainerInitializer。
->
 
 ### 主流程分析启动web容器
 
 servlet定义ServletContainerInitializer，
 
-![image-20220514235410561](https://file.hyqup.cn/img/image-20220514235410561.png)
+![image-20220514235410561](%E5%89%91%E6%8C%87%E6%BA%90%E7%A0%81-springmvc-%E4%B8%80-%E5%BA%8F%E7%AB%A0.assets/image-20220514235410561-16526085257323.png)
 
 ```java
 @HandlesTypes(WebApplicationInitializer.class)
@@ -378,7 +376,7 @@ cwac.setParent(rootContext);好处是容器之间的隔离，类似于Java中类
 
 AbstractAnnotationConfigDispatcherServletInitializer
 
-![image-20220515145511744](https://file.hyqup.cn/img/image-20220515145511744.png)
+![image-20220515145511744](%E5%89%91%E6%8C%87%E6%BA%90%E7%A0%81-springmvc-%E4%B8%80-%E5%BA%8F%E7%AB%A0.assets/image-20220515145511744-16526085257325.png)
 
 AbstractContextLoaderInitializer 注册ContextLoaderListener，web应用启动以后（Tomcat加载应用以后）会执行ContextLoaderListener里面contextInitialized的逻辑，监听器机制，servlet的标准
 

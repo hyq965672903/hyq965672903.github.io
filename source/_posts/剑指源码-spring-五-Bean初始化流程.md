@@ -1,12 +1,13 @@
 ---
 title: 剑指源码-spring-(五)-Bean初始化流程
-index_img: https://file.hyqup.cn/img/wallhaven-476v8e.jpg
-banner_img: https://file.hyqup.cn/img/wallhaven-83voqy.jpg
+index_img: 'https://file.hyqup.cn/img/wallhaven-476v8e.jpg'
+banner_img: 'https://file.hyqup.cn/img/wallhaven-83voqy.jpg'
+categories:
+  - Java
+  - Spring源码
+abbrlink: 7ebc815
 date: 2022-04-27 21:51:19
 tags:
-categories:
-- Java
-- Spring源码
 description:
 ---
 

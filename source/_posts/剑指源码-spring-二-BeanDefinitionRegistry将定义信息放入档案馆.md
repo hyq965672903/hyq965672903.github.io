@@ -1,12 +1,13 @@
 ---
 title: 剑指源码-spring(二)-BeanDefinitionRegistry将定义信息放入档案馆
-index_img: https://file.hyqup.cn/img/wallhaven-0wd21x.jpg
-banner_img: https://file.hyqup.cn/img/wallhaven-0qoeoq.jpg
+index_img: 'https://file.hyqup.cn/img/wallhaven-0wd21x.jpg'
+banner_img: 'https://file.hyqup.cn/img/wallhaven-0qoeoq.jpg'
+categories:
+  - Java
+  - Spring源码
+abbrlink: 9186b1c0
 date: 2022-04-23 16:32:46
 tags:
-categories:
-- Java
-- Spring源码
 description:
 ---
 

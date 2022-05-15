@@ -1,12 +1,13 @@
 ---
 title: 剑指源码-spring(三)-Bean初始化过程引出BeanPostProcessor
-index_img: https://file.hyqup.cn/img/wallhaven-01w1o1.jpg
-banner_img: https://file.hyqup.cn/img/wallhaven-01mqk3.jpg
+index_img: 'https://file.hyqup.cn/img/wallhaven-01w1o1.jpg'
+banner_img: 'https://file.hyqup.cn/img/wallhaven-01mqk3.jpg'
+categories:
+  - Java
+  - Spring源码
+abbrlink: 8f18475c
 date: 2022-04-24 20:32:14
 tags:
-categories:
-- Java
-- Spring源码
 description:
 ---
 
