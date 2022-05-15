@@ -8,6 +8,8 @@ categories:
 abbrlink: 5d9cf326
 date: 2022-04-25 20:27:38
 tags:
+  - BeanFactoryPostProcessor
+  - BeanPostProcessor
 description:
 ---
 

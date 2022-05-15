@@ -5,7 +5,11 @@ banner_img: https://file.hyqup.cn/img/wallhaven-mdvo58.jpg
 abbrlink: 9857fe7d
 date: 2022-05-15 17:55:00
 tags:
+  - SpringMVC
+  - SPI
 categories:
+  - Java
+  - SpringMVC源码
 description:
 ---
 
