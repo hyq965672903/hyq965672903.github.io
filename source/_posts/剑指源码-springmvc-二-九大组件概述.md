@@ -2,13 +2,14 @@
 title: 剑指源码-springmvc-(二)-九大组件概述
 index_img: /img/default.png
 banner_img: /img/default.png
-date: 2022-05-16 19:52:16
+abbrlink: fd09ed1d
+date: 2022-05-16 23:31:37
 tags:
 categories:
 description:
 ---
 
- 概述springMVC九大组件的相关概念，及其基本作用，了解其初始化实现机制
+概述springMVC九大组件的相关概念，及其基本作用，了解其初始化实现机制
 
 <!-- more -->
 
@@ -22,10 +23,10 @@ description:
 
 ```
 public void onApplicationEvent(ContextRefreshedEvent event) {
-   this.refreshEventReceived = true;
-   synchronized (this.onRefreshMonitor) {
-      onRefresh(event.getApplicationContext());
-   }
+  this.refreshEventReceived = true;
+  synchronized (this.onRefreshMonitor) {
+     onRefresh(event.getApplicationContext());
+  }
 }
 ```
 
@@ -34,23 +35,23 @@ public void onApplicationEvent(ContextRefreshedEvent event) {
 ```
 @Override
 protected void onRefresh(ApplicationContext context) {
-   initStrategies(context);
+  initStrategies(context);
 }
 
 /**
- * Initialize the strategy objects that this servlet uses.
- * <p>May be overridden in subclasses in order to initialize further strategy objects.
- */
+* Initialize the strategy objects that this servlet uses.
+* <p>May be overridden in subclasses in order to initialize further strategy objects.
+*/
 protected void initStrategies(ApplicationContext context) {
-   initMultipartResolver(context);
-   initLocaleResolver(context);
-   initThemeResolver(context);
-   initHandlerMappings(context);
-   initHandlerAdapters(context);
-   initHandlerExceptionResolvers(context);
-   initRequestToViewNameTranslator(context);
-   initViewResolvers(context);
-   initFlashMapManager(context);
+  initMultipartResolver(context);
+  initLocaleResolver(context);
+  initThemeResolver(context);
+  initHandlerMappings(context);
+  initHandlerAdapters(context);
+  initHandlerExceptionResolvers(context);
+  initRequestToViewNameTranslator(context);
+  initViewResolvers(context);
+  initFlashMapManager(context);
 }
 ```
 
@@ -72,37 +73,37 @@ HandlerAdapter：处理器适配器，灵活的调用Handler处理具体逻辑
 
 - **HandlerMapping（处理器映射器）**
 
-  根据`request`查找请求对应的 `Handler` 和 `Interceptor`
+ 根据`request`查找请求对应的 `Handler` 和 `Interceptor`
 
 - **HandlerAdapter（处理器适配器）**
 
-  用来适配找到`Handler`对应的适配器，并进行执行
+ 用来适配找到`Handler`对应的适配器，并进行执行
 
 - **HandlerExceptionResolver（异常解析器 ）**
 
-  处理 `Handler` 产⽣的异常，根据异常设置`ModelAndView`，之后交给渲染⽅法进⾏渲染
+ 处理 `Handler` 产⽣的异常，根据异常设置`ModelAndView`，之后交给渲染⽅法进⾏渲染
 
 - **ViewResolver（视图解析器）**
 
-  将 `String` 类型的视图名和 `Locale` 解析为 `View` 类型的视图
+ 将 `String` 类型的视图名和 `Locale` 解析为 `View` 类型的视图
 
 - **RequestToViewNameTranslator（请求视图名转换器）**
 
-  从请求中获取 `ViewName`
+ 从请求中获取 `ViewName`
 
 - **LocaleResolver（区域化解析器）**
 
-  从请求中解析出 `Locale`
+ 从请求中解析出 `Locale`
 
 - **ThemeResolver（主题解析器）**
 
-   从请求中解析出主题名，并获取主题具体的资源
+ 从请求中解析出主题名，并获取主题具体的资源
 
 - **MultipartResolver（分片解析器）**
 
-  封装普通的请求，使其拥有⽂件上传的功能
+ 封装普通的请求，使其拥有⽂件上传的功能
 
 - **FlashMapManager（闪存管理器）**
 
-   ⽤于重定向时的参数传递
+ ⽤于重定向时的参数传递
 
