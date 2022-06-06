@@ -152,36 +152,237 @@ public interface HandlerAdapter {
 
 #### InitializingBean对参数初始化
 
+> 这个时候会准备参数解析器和返回值处理器
+
+
+
 ```java
-@Override
-public void afterPropertiesSet() throws Exception {
-   Assert.notNull(this.applicationContext, "ApplicationContext is required");
+	@Override
+	public void afterPropertiesSet() {
+		// Do this first, it may add ResponseBody advice beans
+		initControllerAdviceCache();
 
-   if (CollectionUtils.isEmpty(this.messageReaders)) {
-      ServerCodecConfigurer codecConfigurer = ServerCodecConfigurer.create();
-      this.messageReaders = codecConfigurer.getReaders();
-   }
-   if (this.argumentResolverConfigurer == null) {
-      this.argumentResolverConfigurer = new ArgumentResolverConfigurer();
-   }
-   if (this.reactiveAdapterRegistry == null) {
-      this.reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
-   }
+		if (this.argumentResolvers == null) {
+			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();
+			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
+		}
+		if (this.initBinderArgumentResolvers == null) {
+			List<HandlerMethodArgumentResolver> resolvers = getDefaultInitBinderArgumentResolvers();
+			this.initBinderArgumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
+		}
+		if (this.returnValueHandlers == null) {
+			List<HandlerMethodReturnValueHandler> handlers = getDefaultReturnValueHandlers();
+			this.returnValueHandlers = new HandlerMethodReturnValueHandlerComposite().addHandlers(handlers);
+		}
+	}
+```
 
-   this.methodResolver = new ControllerMethodResolver(this.argumentResolverConfigurer,
-         this.reactiveAdapterRegistry, this.applicationContext, this.messageReaders);
+#### 参数解析器和返回值处理器的前置工作
 
-   this.modelInitializer = new ModelInitializer(this.methodResolver, this.reactiveAdapterRegistry);
+ RequestMappingHandlerAdapter.invokeHandlerMethod
+
+```java
+@Nullable
+	protected ModelAndView invokeHandlerMethod(HttpServletRequest request,
+			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
+
+		ServletWebRequest webRequest = new ServletWebRequest(request, response);
+		try {
+			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
+			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
+			/**
+			 * 用于组合执行期间所需要的一些组件
+			 */
+			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
+			if (this.argumentResolvers != null) {
+				invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
+			}
+			if (this.returnValueHandlers != null) {
+				invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
+			}
+			invocableMethod.setDataBinderFactory(binderFactory);
+			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
+
+			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
+			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
+			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
+			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
+
+			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
+			asyncWebRequest.setTimeout(this.asyncRequestTimeout);
+
+			WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
+			asyncManager.setTaskExecutor(this.taskExecutor);
+			asyncManager.setAsyncWebRequest(asyncWebRequest);
+			asyncManager.registerCallableInterceptors(this.callableInterceptors);
+			asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
+
+			if (asyncManager.hasConcurrentResult()) {
+				Object result = asyncManager.getConcurrentResult();
+				mavContainer = (ModelAndViewContainer) asyncManager.getConcurrentResultContext()[0];
+				asyncManager.clearConcurrentResult();
+				LogFormatUtils.traceDebug(logger, traceOn -> {
+					String formatted = LogFormatUtils.formatValue(result, !traceOn);
+					return "Resume with async result [" + formatted + "]";
+				});
+				invocableMethod = invocableMethod.wrapConcurrentResult(result);
+			}
+			/**
+			 * 具体执行期间，会传入临时容器mavContainer
+			 */
+			invocableMethod.invokeAndHandle(webRequest, mavContainer);
+			if (asyncManager.isConcurrentHandlingStarted()) {
+				return null;
+			}
+			/**
+			 * 从mavContainer抽取ModelAndView
+			 */
+			return getModelAndView(mavContainer, modelFactory, webRequest);
+		}
+		finally {
+			webRequest.requestCompleted();
+		}
+	}
+```
+
+未来反射解析目标方法中的每一个值 argumentResolvers
+
+```
+if (this.argumentResolvers != null) {
+   invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
 }
 ```
 
+返回值处理器，未来用于处理目标方法执行后的返回值，无论目标方法返回什么会转换为适配器所使用的ModelAndView
+
+```
+ if (this.returnValueHandlers != null) {
+     invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
+  }
+```
+
+```
+ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
+```
+
+把该有的组件组合到ServletInvocableHandlerMethod对象中去，最终使用ServletInvocableHandlerMethod进行invokeAndHandle，将数据最后封装到ModelAndViewContainer中去，最后再将ModelAndViewContainer（临时容器，每一次请求都是新new 的对象，同一次请求期间共享数据）抽取ModelAndView（数据和视图）。
+
 #### 参数解析器
+
+> 27个参数解析器
+
+ ServletInvocableHandlerMethod.invokeAndHandle-->invokeForRequest-->getMethodArgumentValues
+
+```
+protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
+			Object... providedArgs) throws Exception {
+
+		MethodParameter[] parameters = getMethodParameters();
+		if (ObjectUtils.isEmpty(parameters)) {
+			return EMPTY_ARGS;
+		}
+
+		Object[] args = new Object[parameters.length];
+		/**
+		 * 遍历所有的参数使用参数解析器去解析，首个参数解析器解析到了就跳过，执行下一个参数解析
+		 */
+		for (int i = 0; i < parameters.length; i++) {
+			MethodParameter parameter = parameters[i];
+			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+			args[i] = findProvidedArgument(parameter, providedArgs);
+			if (args[i] != null) {
+				continue;
+			}
+			/**
+			 * 这里判断采用门面以27种都去判断一遍
+			 */
+			if (!this.resolvers.supportsParameter(parameter)) {
+				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
+			}
+			try {
+				/**
+				 * 支持了就开始解析
+				 */
+				args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
+			}
+			catch (Exception ex) {
+				// Leave stack trace for later, exception may actually be resolved and handled...
+				if (logger.isDebugEnabled()) {
+					String exMsg = ex.getMessage();
+					if (exMsg != null && !exMsg.contains(parameter.getExecutable().toGenericString())) {
+						logger.debug(formatArgumentError(parameter, exMsg));
+					}
+				}
+				throw ex;
+			}
+		}
+		return args;
+	}
+```
+
+ 
 
 #### 返回值处理器
 
+> 15个返回值处理器
 
+ ServletInvocableHandlerMethod.invokeAndHandle
 
+```java
+public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
+      Object... providedArgs) throws Exception {
+   /**
+    * 目标方法的放射执行
+    */
+   Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
+   setResponseStatus(webRequest);
 
+   if (returnValue == null) {
+      if (isRequestNotModified(webRequest) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
+         disableContentCachingIfNecessary(webRequest);
+         mavContainer.setRequestHandled(true);
+         return;
+      }
+   }
+   else if (StringUtils.hasText(getResponseStatusReason())) {
+      mavContainer.setRequestHandled(true);
+      return;
+   }
 
+   mavContainer.setRequestHandled(false);
+   Assert.state(this.returnValueHandlers != null, "No return value handlers");
+   try {
+      this.returnValueHandlers.handleReturnValue(
+            returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
+   }
+   catch (Exception ex) {
+      if (logger.isTraceEnabled()) {
+         logger.trace(formatErrorForReturnValue(returnValue), ex);
+      }
+      throw ex;
+   }
+}
+```
 
+找到 returnValueHandlers 执行handleReturnValue
 
+```java
+public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
+      ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+   /**
+    * 找到合适的返回值处理器
+    */
+   HandlerMethodReturnValueHandler handler = selectHandler(returnValue, returnType);
+   if (handler == null) {
+      throw new IllegalArgumentException("Unknown return value type: " + returnType.getParameterType().getName());
+   }
+   /**
+    * 执行返回值处理器的处理方法
+    */
+   handler.handleReturnValue(returnValue, returnType, mavContainer, webRequest);
+}
+```
+
+逻辑依然是以先找到为准
+
+接下来执行后置的视图解析器相关业务流程
