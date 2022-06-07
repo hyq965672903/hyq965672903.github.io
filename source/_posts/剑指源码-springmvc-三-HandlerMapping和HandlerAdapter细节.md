@@ -386,3 +386,52 @@ public void handleReturnValue(@Nullable Object returnValue, MethodParameter retu
 逻辑依然是以先找到为准
 
 接下来执行后置的视图解析器相关业务流程
+
+#### 视图解析器
+
+##### 核心接口
+
+```java
+public interface View {
+
+
+   String RESPONSE_STATUS_ATTRIBUTE = View.class.getName() + ".responseStatus";
+
+
+   String PATH_VARIABLES = View.class.getName() + ".pathVariables";
+
+
+   String SELECTED_CONTENT_TYPE = View.class.getName() + ".selectedContentType";
+
+
+
+   @Nullable
+   default String getContentType() {
+      return null;
+   }
+
+   void render(@Nullable Map<String, ?> model, HttpServletRequest request, HttpServletResponse response)
+         throws Exception;
+
+}
+```
+
+```
+public interface ViewResolver {
+
+
+   @Nullable
+   View resolveViewName(String viewName, Locale locale) throws Exception;
+
+}
+```
+
+View 视图 
+
+ViewResolver  视图解析
+
+##### 流程分析
+
+  HandlerAdapter执行完成后会返回ModelAndView对象（里面包含viewName）
+
+所有ViewResolver去解析viewName，一得到就返回，得到View对象，最后调用VIew对象render渲染
