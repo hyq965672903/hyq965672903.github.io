@@ -118,3 +118,55 @@ protected void onRefresh() {
 }
 ```
 
+## SpringBoot 启动原理
+
+ SpringBoot.run
+
+```java
+public ConfigurableApplicationContext run(String... args) {
+   long startTime = System.nanoTime();
+   DefaultBootstrapContext bootstrapContext = createBootstrapContext();
+   ConfigurableApplicationContext context = null;
+   configureHeadlessProperty();
+   SpringApplicationRunListeners listeners = getRunListeners(args);
+   listeners.starting(bootstrapContext, this.mainApplicationClass);
+   try {
+      ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
+      ConfigurableEnvironment environment = prepareEnvironment(listeners, bootstrapContext, applicationArguments);
+      configureIgnoreBeanInfo(environment);
+      Banner printedBanner = printBanner(environment);
+      context = createApplicationContext();
+      context.setApplicationStartup(this.applicationStartup);
+      prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
+      refreshContext(context);
+      afterRefresh(context, applicationArguments);
+      Duration timeTakenToStartup = Duration.ofNanos(System.nanoTime() - startTime);
+      if (this.logStartupInfo) {
+         new StartupInfoLogger(this.mainApplicationClass).logStarted(getApplicationLog(), timeTakenToStartup);
+      }
+      listeners.started(context, timeTakenToStartup);
+      callRunners(context, applicationArguments);
+   }
+   catch (Throwable ex) {
+      handleRunFailure(context, ex, listeners);
+      throw new IllegalStateException(ex);
+   }
+   try {
+      Duration timeTakenToReady = Duration.ofNanos(System.nanoTime() - startTime);
+      listeners.ready(context, timeTakenToReady);
+   }
+   catch (Throwable ex) {
+      handleRunFailure(context, ex, null);
+      throw new IllegalStateException(ex);
+   }
+   return context;
+}
+```
+
+1、run 方法内启动 createApplicationContext 会创建一个IOC容器AnnotationConfigServletWebServerApplicationContext
+
+2、然后执行refreshContext，会执行到Spring刷新12大步，然后再onRefresh时候执行Tomcat的启动
+
+3、Tomcat启动的时候会加载所有的Servlet
+
+4、DispatcherServlet回加载九大组件，然后执行整个初始化流程
