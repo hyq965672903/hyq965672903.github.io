@@ -12,6 +12,8 @@ description:
 
 <!-- more -->
 
+> 18罗汉=12原子类+4增强类+Striped64类+Number类
+
 ## 基本类型原子类
 
 ### AtomicInteger
@@ -312,4 +314,105 @@ public class AtomicReferenceFieldUpdaterDemo {
 
 }
 ```
+
+## 原子操作增强类
+
+- DoubleAccumulator
+- DoubleAdder
+- LongAccumulator
+- LongAdder
+
+>   Adder和Accumulator区别：Adder只能用来计算加法，且从零开始计算；Accumulator提供了自定义的函数操作
+
+```java
+package cn.hyqup.juc;
+
+import java.util.concurrent.atomic.LongAccumulator;
+import java.util.concurrent.atomic.LongAdder;
+
+/**
+ * Copyright © 2022 灼华. All rights reserved.
+ *
+ * @author create by hyq
+ * @version 0.1
+ * @date 2022/6/22
+ * @description:
+ */
+public class LongAdderDemo {
+    public static void main(String[] args) {
+        LongAdder longAdder = new LongAdder();
+
+        longAdder.increment();
+        longAdder.increment();
+        longAdder.increment();
+
+        System.out.println(longAdder.longValue());
+
+        LongAccumulator longAccumulator = new LongAccumulator((x, y) -> x * y, 2);
+
+        longAccumulator.accumulate(1);
+        longAccumulator.accumulate(2);
+        longAccumulator.accumulate(3);
+
+        System.out.println(longAccumulator.longValue());
+    }
+}
+```
+
+### 增强类(Adder、Accumulator)和Atomic的区别？
+
+具体：LongAdder 与 AtomicLong有什么区别？
+
+#### 概述
+
+`AtomicLong`是作者`Doug Lea`在`jdk1.5`版本发布于`java.util.concurrent.atomic`并发包下的类。
+而`LongAdder`是`道格·利（Doug Lea的中文名）`在`java8`中发布的类。
+
+#### 原理剖析
+
+AtomicLong底层是通过`CAS`实现的，采用volatile+Unsafe类来实现。
+
+缺点：
+
+1、在多线程竞争不激烈的情况下，这样做是合适的。但是如果线程竞争激烈，会造成大量线程在原地打转、不停尝试去修改值，但是老是发现值被修改了，于是继续自旋。 这样浪费了大量的`CPU资源`。
+
+2、volatile，线程修改了临界资源后，需要刷新到其他线程，也会浪费资源
+
+注意：Adder的实现sum求和后还有计算线程修改结果的话，最后`结果不够准确`
+
+## Striped64类
+
+LongAdder是Striped64的子类
+
+### 核心参数
+
+Striped64有几个比较重要的成员函数
+
+- static final int NCPU = Runtime.getRuntime().availableProcessors();
+
+  CPU数量，即cells数组的最大长度
+
+- transient volatile Cell[] cells; 
+
+  cells数组，为2的幂，2,4,8,16.....，方便以后位运算
+
+- transient volatile long base;
+
+  基础value值，当并发较低时，只累加该值主要用于没有竞争的情况，通过CAS更新。
+
+- transient volatile int cellsBusy;
+
+​		创建或者扩容Cells数组时使用的自旋锁变量调整单元格大小（扩容），创建单元格时使用的锁。
+
+### LongAdder实现原理：
+
+LongAdder的基本思路就是分散热点，将value值分散到一个Cell数组中，不同线程会命中到数组的不同槽中，各个线程只对自己槽中的那个值进行CAS操作，这样热点就被分散了，冲突的概率就小很多。如果要获取真正的long值，只要将各个槽中的变量值累加返回。
+
+sum()会将所有Cell数组中的value和base累加作为返回值，核心的思想就是将之前AtomicLong一个value的更新压力分散到多个value中去
+
+![image-20220622220924965](JUC-%E5%85%AD-%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB%E5%8F%8A%E5%8D%81%E5%85%AB%E7%BD%97%E6%B1%89%E5%A2%9E%E5%BC%BA.assets/image-20220622220924965.png)
+
+![image-20220622221141680](https://file.hyqup.cn/img/image-20220622221141680.png)
+
+### 为啥在并发情况下longAdder的sum的值不精确？
 
