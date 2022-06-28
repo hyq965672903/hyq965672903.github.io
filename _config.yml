@@ -16,7 +16,7 @@ timezone: ''
 url: https://hyq965672903.gitee.io
 root: /
 permalink: posts/:abbrlink.html
-abbrlink: 
+abbrlink:
   alg: crc32
   rep: hex
 permalink_defaults:
@@ -136,8 +136,8 @@ live2d:
     scale: 0.5
   react:
     opacity: 0.7
-  dialog: 
-    enable: true # Display dialog 显示人物对话框 
+  dialog:
+    enable: true # Display dialog 显示人物对话框
     hitokoto: true # Enable hitokoto 使用一言API
 
 
@@ -146,8 +146,8 @@ live2d:
 # hexo-permalink-pinyin Hexo
 # https://github.com/viko16/hexo-permalink-pinyin.git
 #---------------------------
-permalink_pinyin: 
-  enable: true 
+permalink_pinyin:
+  enable: true
   separator: '-' # default: '-'
 
 #---------------------------
@@ -155,8 +155,8 @@ permalink_pinyin:
 # hexo-lazyload-image
 # https://github.com/Troy-Yang/hexo-lazyload-image.git
 #---------------------------
-lazyload: 
-  enable: true 
+lazyload:
+  enable: true
   onlypost: false # 是否只对文章的图片做懒加载 loadingImg: # eg ./images/loading.gif
 
 #---------------------------
@@ -166,4 +166,28 @@ lazyload:
 cdn:
     jsdelivr:
         enabled: true
-
+#2022年06月21日  插件hexo-generator-restful 生成接口数据
+restful:
+  # site 可配置为数组选择性生成某些属性
+  # site: ['title', 'subtitle', 'description', 'author', 'since', email', 'favicon', 'avatar']
+  site: true        # hexo.config mix theme.config
+  posts_size: 10    # 文章列表分页，0 表示不分页
+  posts_props:      # 文章列表项的需要生成的属性
+    title: true
+    slug: true
+    date: true
+    updated: true
+    comments: true
+    path: true
+    excerpt: false
+    cover: true      # 封面图，取文章第一张图片
+    content: false
+    keywords: false
+    categories: true
+    tags: true
+  categories: true         # 分类数据
+  use_category_slug: false # Use slug for filename of category data
+  tags: true               # 标签数据
+  use_tag_slug: false      # Use slug for filename of tag data
+  post: true               # 文章数据
+  pages: false             # 额外的 Hexo 页面数据, 如 About

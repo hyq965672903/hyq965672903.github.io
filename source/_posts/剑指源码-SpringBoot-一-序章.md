@@ -2,6 +2,7 @@
 title: 剑指源码-SpringBoot-(一)-序章
 index_img: /img/default.png
 banner_img: /img/default.png
+abbrlink: b589098f
 date: 2022-06-07 22:26:00
 tags:
 categories:

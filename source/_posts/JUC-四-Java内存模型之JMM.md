@@ -2,6 +2,7 @@
 title: JUC(四)-Java内存模型之JMM
 index_img: /img/default.png
 banner_img: /img/default.png
+abbrlink: f189a462
 date: 2022-06-18 19:20:46
 tags:
 categories:

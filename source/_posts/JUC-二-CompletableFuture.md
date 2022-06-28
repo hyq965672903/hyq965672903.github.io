@@ -2,6 +2,7 @@
 title: JUC(二)-CompletableFuture
 index_img: /img/default.png
 banner_img: /img/default.png
+abbrlink: 918a696d
 date: 2022-06-18 09:11:57
 tags:
 categories:
