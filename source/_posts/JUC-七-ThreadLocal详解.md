@@ -60,6 +60,14 @@ ThreadLocal.ThreadLocalMap threadLocals = null;
 
 ​		这是在ThreadLocal中定义的一个类，可以简单的将它理解成一个Map，不过它的key是`WeakReference弱引用`类型，这样当这个值没有在别的地方引用时，在发生垃圾回收时，这个map的`key`会被自动回收，不过它的值不会被自动回收。
 
+### **总结关系：**
+
+Thread存在ThreadLocalMap对象(`直接关系`)
+
+ThreadLocal里有ThreadLocalMap匿名内部类（`直接关系`）
+
+ThreadLocal进行方法操作的时候会从Thread里面的ThreadLocalMap拿取当前ThreadLocalMap,然后操作该Map(`间接关系`)
+
 ## 源码分析 get和set
 
 ### get实现
@@ -145,23 +153,37 @@ static class Entry extends WeakReference<ThreadLocal<?>> {
 }
 ```
 
-## ThreadLocal内存泄露原理分析，如何解决？
+## ThreadLocal为什么会内存泄露？
 
-### 原因分析：
+在ThreadLocal的生命周期中，都存在这些引用。看下图: 实线代表强引用，虚线代表弱引用
 
-ThreadLocalMap的每个Entry 都是一个对key的弱引用，同时，每个Entry 都包含了一个对value的强引用。正常情况在多线程中，线程终止后，保存在ThreadLocal里的value会被垃圾回收，因为没有任何强引用了
+![这里写图片描述](https://file.hyqup.cn/img/SouthEast.jpeg)
 
-但是在使用线程池的情况下，线程会复用，不会立即终止，这个时候即便是key弱引，被回收，但是key对应的value就不能被回收，因为value和Thread之间还存在这个强引用链路，所以导致value无法回收，就可能会出现OOM
+<center>（图片来自网络）</center>
 
-### 如何解决
+每个Thread 维护一个 ThreadLocalMap 映射表，这个映射表Entry的 key 是 ThreadLocal实例本身，value 是真正需要存储的 Object
 
-JDK已经考虑到了这个问题，所以在set，remove，rehash方法中会扫描key为null的Entry，并把对应的value设置为null，这样value对象就可以被回收，但是如果一个**ThreadLocal不被使用**，那么实际上set，remove，rehash方法也不会被调用，如果同时线程又不停止，那么调用链就一直存在，那么就导致了value的内存泄漏
+ThreadLocalMap 是使用 ThreadLocal 的`弱引用`作为 Key 的，如果一个ThreadLocal没有外部强引用来引用它,弱引用的对象`ThreadLocal`在 GC 时会被**回收**,这时，ThreadLocalMap中就会出现key为null的Entry，就没有办法访问这些key为null的Entry的value，这个时候如果当前线程再迟迟不结束（比如我们使用**线程池复用线程**），所以存在着内存泄露，因为这里只有线程结束后，存在线程栈中的Current Thread、Map value才会全部被GC回收
 
-在使用完ThreadLocal之后，**主动调用remove**方法
+ThreadLocalMap的设计中已经考虑到这种情况,在ThreadLocal的get(),set(),remove()的时候都会清除线程ThreadLocalMap里所有key为null的value
 
-## ThreadLocal为什么采用弱引用？
+ThreadLocalMap设计上已经考虑比较多，但是都是**被动措施**
 
+> 分配使用了ThreadLocal又不再调用get(),set(),remove()方法，那么就会导致内存泄漏，因为这块内存一直存在。
 
+## 为什么使用弱引用，OOM是否是弱引用的锅？
+
+分两种情况
+
+- key 使用强引用：引用的ThreadLocal的对象被回收了，但是ThreadLocalMap还持有ThreadLocal的强引用，如果没有手动删除，ThreadLocal不会被回收，导致Entry内存泄漏。
+
+- key 使用弱引用：引用的ThreadLocal的对象被回收了，由于ThreadLocalMap持有ThreadLocal的弱引用，即使没有手动删除，ThreadLocal也会被回收。value在下一次ThreadLocalMap调用set、get、remove的时候会被清除。
+
+综上所述，Entryd的key无论使用弱引用还是强引用。本质上value还是强引用，所以还是会造成内存泄露，从而引发内存溢出
+
+## 最佳实践
+
+每次使用完ThreadLocal，都调用它的`remove()`方法，清除数据。
 
 ## 使用场景
 
