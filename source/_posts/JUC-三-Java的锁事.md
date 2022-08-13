@@ -1,7 +1,7 @@
 ---
 title: JUC(三)-Java的“锁”事
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva1.sinaimg.cn/large/9bd9b167gy1g2rkqolw28j21hc0u0wmp.jpg
+banner_img: https://tva2.sinaimg.cn/large/9bd9b167gy1g2rkqrxy1xj21hc0u0qb1.jpg
 abbrlink: f60080de
 date: 2022-06-18 11:51:04
 tags:

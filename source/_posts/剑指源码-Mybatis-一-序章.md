@@ -1,7 +1,8 @@
 ---
 title: 剑指源码-Mybatis-(一)-序章
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: 'https://tva4.sinaimg.cn/large/9bd9b167ly1fwsfchsldlj21hc0u0x2k.jpg'
+banner_img: 'https://tva1.sinaimg.cn/large/9bd9b167gy1g4li06ofsnj21hc0xc4qp.jpg'
+abbrlink: 2569fe28
 date: 2022-07-18 20:23:03
 tags:
 categories:

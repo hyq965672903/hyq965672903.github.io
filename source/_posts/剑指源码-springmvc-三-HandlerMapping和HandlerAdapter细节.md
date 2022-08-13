@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-springmvc-(三)-HandlerMapping和HandlerAdapter细节
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva4.sinaimg.cn/large/9bd9b167ly1g2rkq7yxx2j21hc0u0ai6.jpg
+banner_img: https://tva4.sinaimg.cn/large/9bd9b167gy1g2rl48pag4j21hc0u0dtj.jpg
 abbrlink: 5a47f1a6
 date: 2022-05-19 22:48:06
 tags:

@@ -1,7 +1,8 @@
 ---
 title: JUC(八)-AbstractQueuedSynchronizer之AQS
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva1.sinaimg.cn/large/9bd9b167gy1g2rmkj1qn2j21hc0u0b29.jpg
+banner_img: https://tva2.sinaimg.cn/large/9bd9b167ly1g2rl02t1gpj21hc0u0am3.jpg
+abbrlink: e0cf2292
 date: 2022-07-07 20:38:51
 tags:
 categories:

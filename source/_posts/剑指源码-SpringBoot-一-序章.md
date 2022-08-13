@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-SpringBoot-(一)-序章
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva1.sinaimg.cn/large/9bd9b167gy1g2rle3x9fyj21c00u0qka.jpg
+banner_img: https://tva1.sinaimg.cn/large/9bd9b167ly1g2rltvsp6lj21hc0u0nir.jpg
 abbrlink: b589098f
 date: 2022-06-07 22:26:00
 tags:

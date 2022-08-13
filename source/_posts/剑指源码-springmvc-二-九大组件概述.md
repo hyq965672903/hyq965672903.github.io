@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-springmvc-(二)-九大组件概述
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva2.sinaimg.cn/large/9bd9b167gy1g2rmxmh3vqj21hc0u0kjl.jpg
+banner_img: https://tva4.sinaimg.cn/large/9bd9b167gy1g2rn8ha2csj21hc0u04qr.jpg
 abbrlink: fd09ed1d
 date: 2022-05-16 23:31:37
 tags:

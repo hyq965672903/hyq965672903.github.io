@@ -1,7 +1,7 @@
 ---
 title: JUC(五)-CAS
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva2.sinaimg.cn/large/9bd9b167gy1g2rkorfsdej21hc0u0n3p.jpg
+banner_img: https://tva2.sinaimg.cn/large/9bd9b167gy1g2rlmxizo9j21hc0u0h5m.jpg
 abbrlink: 16f16ca5
 date: 2022-06-19 10:19:11
 tags:

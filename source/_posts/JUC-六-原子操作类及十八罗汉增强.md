@@ -1,7 +1,7 @@
 ---
 title: JUC(六)-原子操作类及十八罗汉增强
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva1.sinaimg.cn/large/9bd9b167gy1g2rly151boj21hc0u0h9c.jpg
+banner_img: https://tva1.sinaimg.cn/large/9bd9b167gy1g2rlsetp0tj21hc0u0nhx.jpg
 abbrlink: b72bf36e
 date: 2022-06-19 14:21:57
 tags:

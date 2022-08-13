@@ -1,7 +1,8 @@
 ---
 title: 剑指源码-Mybatis-(二)-主流程分析与核心组件关系
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: 'https://tva2.sinaimg.cn/large/9bd9b167ly1fwrt21udjcj21hc0u0tkq.jpg'
+banner_img: 'https://tva3.sinaimg.cn/large/9bd9b167gy1g2ql4y760jj21hc0u07wh.jpg'
+abbrlink: 597465dd
 date: 2022-08-11 20:54:29
 tags:
 categories:

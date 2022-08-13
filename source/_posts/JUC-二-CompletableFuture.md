@@ -1,7 +1,7 @@
 ---
 title: JUC(二)-CompletableFuture
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva3.sinaimg.cn/large/9bd9b167gy1g2rlsmpf8tj21hc0u0aut.jpg
+banner_img: https://tva2.sinaimg.cn/large/9bd9b167gy1g2rl7g0pfej21hc0u0tns.jpg
 abbrlink: 918a696d
 date: 2022-06-18 09:11:57
 tags:

@@ -1,7 +1,7 @@
 ---
 title: JUC(七)-ThreadLocal详解
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva3.sinaimg.cn/large/9bd9b167gy1g2rly7vf24j21hc0u0ax6.jpg
+banner_img: https://tva3.sinaimg.cn/large/9bd9b167gy1g2rmb0gmfxj21hc0u01kx.jpg
 abbrlink: 6f92e213
 date: 2022-06-28 14:46:38
 tags:

@@ -1,7 +1,7 @@
 ---
 title: JUC(一)-多线程筑基
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva4.sinaimg.cn/large/9bd9b167gy1g2rkyl0xa2j21hc0u0tk8.jpg
+banner_img: https://tva2.sinaimg.cn/large/9bd9b167gy1g2rko7x9qsj21hc0u0dlf.jpg
 abbrlink: e2166019
 date: 2022-06-14 23:14:08
 tags:
