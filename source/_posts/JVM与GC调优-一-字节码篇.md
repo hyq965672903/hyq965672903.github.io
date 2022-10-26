@@ -1,10 +1,13 @@
 ---
 title: JVM与GC调优(一)-字节码篇
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva3.sinaimg.cn/large/9bd9b167ly1fwrsp15pc6j21hc0u0gtv.jpg
+banner_img: https://tva4.sinaimg.cn/large/9bd9b167gy1g4lhe1cyggj21hc0xcn7f.jpg
+abbrlink: d7ec6c3
 date: 2022-09-13 14:39:40
 tags:
 categories:
+ - Java
+ - JVM
 description:
 ---
 

@@ -1,10 +1,13 @@
 ---
 title: JVM与GC调优(二)-类加载篇
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva4.sinaimg.cn/large/9bd9b167gy1g2qk7g8h5bj21hc0u0tr2.jpg
+banner_img: https://tva1.sinaimg.cn/large/9bd9b167gy1g2ql06e5uxj21hc0u04qp.jpg
+abbrlink: a82b0894
 date: 2022-09-21 20:53:12
 tags:
 categories:
+ - Java
+ - JVM
 description:
 ---
 

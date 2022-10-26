@@ -1,12 +1,14 @@
 ---
 title: JVM与GC调优(三)-内存结构篇
-index_img: /img/default.png
-banner_img: /img/default.png
+index_img: https://tva3.sinaimg.cn/large/9bd9b167ly1fwsg8balnxj21hc0u07wh.jpg
+banner_img: https://tva4.sinaimg.cn/large/9bd9b167gy1fwrt978wr9j21hc0u04eb.jpg
+abbrlink: 8be32240
 date: 2022-09-25 13:08:54
 tags:
 categories:
+ - Java
+ - JVM
 description:
-
 ---
 
 了解内存结构中相关信息，程序计数器、虚拟器栈、本地方法和本地接口栈、堆、方法区
