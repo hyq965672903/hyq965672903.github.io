@@ -1,8 +1,8 @@
-```
+---
 title:  关于页
 date: 2020-11-11 20:38:12
 layout: about
-```
+---
 
 
 
@@ -25,10 +25,6 @@ layout: about
             </span>
         </div>
     </center>
-
-
-
-
 
 
  ## <img src="F:/BaiduSyncdisk/简历/assets/info-circle-solid.svg" width="30px"> 基本信息 
