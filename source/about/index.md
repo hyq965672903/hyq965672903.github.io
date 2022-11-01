@@ -1,9 +1,3 @@
----
-title: 关于
-date: 2020-11-11 20:38:12
-layout: about
----
-
 <center>
         <h1>胡永青</h1>
         <div>
@@ -149,20 +143,22 @@ layout: about
 
 **项目四 雁江服务平台**
 
-- 	**项目描述** 
-   雁江数据大屏项目主要是针对于资阳雁江政府数据大屏展示项目，基于雁江农业发展的农业统计数据，从产业兴旺、绿色兴农、生态宜居、生活富裕等4大方面展示近几年资阳市雁江区的农业发展状况。后端管理页面设立组织架构，业务表现形式为后台管理页面提供农业各个模块的数据管理等，前端大屏展示统计页面数据，小程序提供相关数据展示以及部分基础功能
+- **项目描述** 
+  雁江数据大屏项目主要是针对于资阳雁江政府数据大屏展示项目，基于雁江农业发展的农业统计数据，从产业兴旺、绿色兴农、生态宜居、生活富裕等4大方面展示近几年资阳市雁江区的农业发展状况。后端管理页面设立组织架构，业务表现形式为后台管理页面提供农业各个模块的数据管理等，前端大屏展示统计页面数据，小程序提供相关数据展示以及部分基础功能
 
-- 	**实现技术**  Git+Nginx+SpringCloud+Eureka+Zuul+SpringSecurity+jwt+Feign+Hystrix+Mybatis+RabbitMq+Redis+Vue+ElementUI+Jenkins
+- **实现技术** 
 
-- 	**职责描述**  
+   Git+Nginx+SpringCloud+Eureka+Zuul+SpringSecurity+jwt+Feign+Hystrix+Mybatis+RabbitMq+Redis+Vue+ElementUI+Jenkins
 
-   -  参与前期的需求分析，业务模块划分，单个模块数据库设计，完成数据模块分析，拆分业务，建立数据库，完成接口开发
-   -  基于springSecurityOauth2+jwt完成自定义授权码登录功能实现，基于RBAC模型设计角色权限设计实现。
+- **职责描述**  
 
-   -  基于现有产品数据分析数据分析数据关联关系，将数据转换为数据库表没提供API接口
-   -  基于EasyExcel部分数据导出Excel后生成File上传文件中心并记录日志，部分数据Excel导入功能实现
-   -  基于Vue+ElementUI完成部分前端后台相关模块的开发
-   -  完成新机器Linux测试环境基于Jenkins持续化部署的环境搭建并完成项目的持续化部署
+  -  参与前期的需求分析，业务模块划分，单个模块数据库设计，完成数据模块分析，拆分业务，建立数据库，完成接口开发
+  -  基于springSecurityOauth2+jwt完成自定义授权码登录功能实现，基于RBAC模型设计角色权限设计实现。
+
+  -  基于现有产品数据分析数据分析数据关联关系，将数据转换为数据库表没提供API接口
+  -  基于EasyExcel部分数据导出Excel后生成File上传文件中心并记录日志，部分数据Excel导入功能实现
+  -  基于Vue+ElementUI完成部分前端后台相关模块的开发
+  -  完成新机器Linux测试环境基于Jenkins持续化部署的环境搭建并完成项目的持续化部署
 
 ## <img src="F:/BaiduSyncdisk/简历/assets/rss-solid.svg" width="30px"> 自我评价
 
