@@ -1,5 +1,5 @@
 ---
-title: JVM与GC调优(二)-类加载篇
+title: JVM与GC调优(二)-类加载子系统篇
 index_img: https://tva4.sinaimg.cn/large/9bd9b167gy1g2qk7g8h5bj21hc0u0tr2.jpg
 banner_img: https://tva1.sinaimg.cn/large/9bd9b167gy1g2ql06e5uxj21hc0u04qp.jpg
 abbrlink: a82b0894
@@ -14,6 +14,13 @@ description:
 类的加载过程解析与双亲委派机制与破坏双亲委派机制相关
 
 <!-- more -->
+
+## 类加载的时机
+
+- 遇到 `new` 、 `getstatic` 、 `putstatic` 和 `invokestatic` 这四条指令时，如果对应的类没有初始化，则要对对应的类先进行初始化
+- 使用 java.lang.reflect 包方法时，对类进行**反射调用**的时候
+- 初始化一个类的时候发现其**父类**还没初始化，要先初始化其**父类**
+- 当虚拟机开始启动时，用户需要指定一个主类（main），虚拟机会先执行这个主类的初始化。
 
 ## 类的加载过程
 

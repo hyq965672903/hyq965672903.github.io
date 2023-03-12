@@ -1,5 +1,5 @@
 ---
-title: JVM与GC调优(三)-内存结构篇
+title: JVM与GC调优(三)-运行时数据区篇
 index_img: https://tva3.sinaimg.cn/large/9bd9b167ly1fwsg8balnxj21hc0u07wh.jpg
 banner_img: https://tva4.sinaimg.cn/large/9bd9b167gy1fwrt978wr9j21hc0u04eb.jpg
 abbrlink: 8be32240
