@@ -2,6 +2,7 @@
 title: JVM与GC调优(四)-对象的生命周期和垃圾回收GC篇
 index_img: /img/default.png
 banner_img: /img/default.png
+abbrlink: 1382b133
 date: 2023-03-12 22:45:15
 tags:
 categories:

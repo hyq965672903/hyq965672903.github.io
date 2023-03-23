@@ -2,9 +2,9 @@
 page.layout = "about"
 page.title = theme.about.title || __('about.title')
 page.subtitle = theme.about.subtitle || __('about.subtitle')
-page.banner_img = theme.about.banner_img
-page.banner_img_height = theme.about.banner_img_height
-page.banner_mask_alpha = theme.about.banner_mask_alpha
+page.banner_img = page.banner_img || theme.about.banner_img
+page.banner_img_height = page.banner_img_height || theme.about.banner_img_height
+page.banner_mask_alpha = page.banner_mask_alpha || theme.about.banner_mask_alpha
 %>
 
 <div class="text-center">
@@ -16,9 +16,10 @@ page.banner_mask_alpha = theme.about.banner_mask_alpha
         <% if (!each.class) continue; %>
         <% var cls = each.class %>
         <% var isQr = each.qrcode %>
-        <a href="<%= isQr ? 'javascript:;' : url_for(each.link) %>" class="<%= isQr ? 'qr-trigger' : '' %>
+        <a <%= isQr ? '' : ('href=' + url_for(each.link)) %> class="<%= isQr ? 'qr-trigger' : '' %>
            <%= !isQr && each.tip ? 'hint--bottom hint--rounded' : '' %>"
            <%= !isQr && each.tip ? 'aria-label=' + each.tip : '' %>
+           target="<%= isQr ? '_self' : '_blank' %>"
         >
           <i class="<%= cls %>" aria-hidden="true"></i>
           <% if (isQr) { %>
@@ -37,14 +38,16 @@ page.banner_mask_alpha = theme.about.banner_mask_alpha
 
   <% if(page.comments) { %>
     <!-- Comments -->
-    <article class="comments" id="comments">
+    <article id="comments">
       <% var type %>
       <% if (typeof page.comment === 'string' && page.comment !== '') { %>
-        <% type = '_partial/comments/' + page.comment %>
+        <% type = '_partials/comments/' + page.comment %>
       <% } else { %>
-        <% type = '_partial/comments/' + theme.post.comments.type %>
+        <% type = '_partials/comments/' + theme.post.comments.type %>
       <% } %>
       <%- partial(type) %>
     </article>
   <% } %>
 </article>
+
+<%- partial('_partials/markdown-plugins') %>
