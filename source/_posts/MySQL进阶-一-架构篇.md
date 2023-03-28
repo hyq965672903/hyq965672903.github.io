@@ -148,3 +148,6 @@ show variables like '%datadir%';
 | **CRUD**     | 读、写                                 | 读多                                     |
 | **索引结构** | B+ Tree                                | B+ Tree                                  |
 
+#### InnoDB架构图
+
+![InnoDB架构图](http://file.hyqup.cn/img/InnoDB%E6%9E%B6%E6%9E%84%E5%9B%BE.png)
