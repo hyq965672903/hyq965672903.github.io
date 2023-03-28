@@ -2,6 +2,7 @@
 title: Hexo版本升级操作指南
 index_img: /img/default.png
 banner_img: /img/default.png
+abbrlink: 178618fd
 date: 2023-03-23 22:32:56
 tags:
 categories:

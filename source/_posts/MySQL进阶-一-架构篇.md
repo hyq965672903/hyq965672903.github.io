@@ -2,6 +2,7 @@
 title: MySQL进阶(一)-架构篇
 index_img: /img/default.png
 banner_img: /img/default.png
+abbrlink: a7d81bc0
 date: 2023-03-27 21:49:59
 tags:
 categories:
@@ -109,7 +110,7 @@ slow_query_log_file=slow_query_log.log
 查看MySQL数据文件
 
 ```sql
-show variables like '%datadir%'；
+show variables like '%datadir%';
 ```
 
 - `ibdata`文件：使用系统表空间存储表数据和索引信息，所有表共同使用一个或者多个ibdata文件
