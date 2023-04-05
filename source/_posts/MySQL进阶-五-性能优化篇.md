@@ -142,3 +142,74 @@ select结果列中使用到了索引，type会显示为index。**全部索引扫
 ##### **`all`**
 
 这个就是全表扫描数据文件，然后再**在****server****层进行过滤**返回符合要求的记录
+
+#### **Extra参数**
+
+- **Using filesort**
+
+  使用了文件排序
+
+- **Using index**
+
+  表示相应的SELECT查询中使用到了索引，避免访问表的数据行，这种查询的效率很高！
+
+- **Using where**
+
+  MySQL将对InnoDB提取的结果在SQL Layer层进行过滤
+
+- **Using join buffer**
+
+  使用了连接缓存
+
+## 优化
+
+创建索引的原则，判断组合索引失效场景
+
+### 慢查询
+
+**查看是否开启慢查询功能**
+
+```sql
+# 查看是否开启慢查询日志
+show variables like '%slow_query%';
+show variables like 'long_query_time%';
+```
+
+slow_query_log：是否开启慢查询日志，1为开启，0为关闭
+
+log-slow-queries：旧版（5.6以下）MySQL数据库慢查询日志存储路径。
+
+slow-query-log-file：新版（5.6及以上）MySQL数据库慢查询日志存储路径。
+
+​		不设置该参数，系统则会默认给一个文件host_name-slow.log
+
+long_query_time：慢查询阈值，当查询时间多于设定的阈值时，记录日志，单位秒
+
+### 开启慢查询
+
+```sql
+# 开启慢查询日志
+set global slow_query_log=on;
+# 大于1秒钟的数据记录到慢日志中，如果设置为默认0，则会有大量的信息存储在磁盘中，磁盘很容易满
+掉
+# 如果设置不生效，建议配置在my.cnf配置文件中
+set global long_query_time=1;
+# 记录没有索引的查询。
+set global log_queries_not_using_indexes=on;
+```
+
+### **连接数**max_connections
+
+```sql
+# 查看 max_connections
+show global variables like 'max_connections'
+# 设置 max_connections（立即生效重启后失效）
+set global max_connections = 800;
+# 这台MySQL服务器最大连接数是256，然后查询一下服务器使用过的最大连接数：
+show global status like 'Max_used_connections';
+# MySQL服务器过去的最大连接数是245，没有达到服务器连接数上限256，应该没有出现1040错误，
+比较理想的设置是：Max_used_connections / max_connections * 100% ≈ 85%
+最大连接数占上限连接数的85%左右，如果发现比例在10%以下，MySQL服务器连接数上限设置的过高
+了
+```
+
