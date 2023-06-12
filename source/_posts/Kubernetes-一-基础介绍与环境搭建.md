@@ -139,3 +139,4 @@ centos7下载链接：https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/Cen
 
 > 注意：这里分配6g内存并不会直接占用系统6g内存给当前虚拟机使用，而是动态去申请的
 
+配置方式从原生的静态IP的纯净的系统中关机，克隆。克隆后重新设置静态ip，然后重启，使用shell工具链接，我这里使用FinalShell链接。
