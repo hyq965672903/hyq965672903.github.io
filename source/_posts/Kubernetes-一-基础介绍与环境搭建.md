@@ -111,3 +111,17 @@ Node组件包括：
   - 负责镜像管理以及Pod和容器的真正运行
   - 支持docker/containerd/Rkt/Pouch/Kata等多种运行时
 
+## Kubernetes环境搭建
+
+> 使用kubeadm本地化部署目前最新版本kubernetes版本1.27，其他部署方式也可以使用`kubeasz`、`kubekey` 等方式部署
+
+### Linux环境准备
+
+#### 主机系统说明
+
+使用VMware来搭建虚拟机， aliyun镜像库 https://developer.aliyun.com/mirror/
+
+centos7下载链接：https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2207-02.iso
+
+
+
