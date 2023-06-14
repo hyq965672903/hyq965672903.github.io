@@ -127,6 +127,62 @@ centos7下载链接：https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/Cen
 
 参考：https://www.cnblogs.com/mayhot/p/15964506.html
 
+修改ip的方式
+
+```shell
+# cd到网络配置文件路径
+cd /etc/sysconfig/network-scripts/
+# 编辑ifcfg-en33
+vi ifcfg-en33
+# 重启网卡
+systemctl restart network
+# 查看ip
+ip addr
+```
+
+```shell
+TYPE=Ethernet
+PROXY_METHOD=none
+BROWSER_ONLY=no
+BOOTPROTO=static
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
+IPV6_DEFROUTE=yes
+IPV6_FAILURE_FATAL=no
+IPV6_ADDR_GEN_MODE=stable-privacy
+NAME=ens33
+UUID=56d45dc8-a17d-4eca-852c-97167c783f01
+DEVICE=ens33
+ONBOOT=yes
+IPADDR=192.168.100.11
+NETMASK=255.255.255.0
+GATEWAY=192.168.100.2
+DNS1=114.114.114.114
+
+```
+
+改动如下 `IPADDR`自己分配 、`GATEWAY` 查看虚拟机的网络`NAT`网络配置
+
+> `BOOTPROTO=static`   
+>
+> `ONBOOT=yes`
+> `IPADDR=192.168.100.11`
+> `NETMASK=255.255.255.0`
+> `GATEWAY=192.168.100.2`
+> `DNS1=114.114.114.114`
+
+如果重启网络还是连接不上，可能是NetworkManager导致的，关闭这个服务
+
+```shell
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+```
+
+参考：https://www.cnblogs.com/python-wen/p/11607969.html
+
+
 > 我这里采用静态IP配置，网关设值为192.168.100.0  掩码是255.255.255.0 所以后续分配ip 就可以从 192.168.100.1~192.168.100.255  
 
 #### 主机硬件配置说明
@@ -140,3 +196,137 @@ centos7下载链接：https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/Cen
 > 注意：这里分配6g内存并不会直接占用系统6g内存给当前虚拟机使用，而是动态去申请的
 
 配置方式从原生的静态IP的纯净的系统中关机，克隆。克隆后重新设置静态ip，然后重启，使用shell工具链接，我这里使用FinalShell链接。
+
+#### 准备工作
+
+##### 主机名配置
+
+```shell
+# 设置主机名
+hostnamectl set-hostname xxx
+```
+
+##### 主机名与IP地址解析
+
+```shell
+# 在hosts后面追加内容
+vi /etc/hosts
+192.168.10.11 master01
+192.168.10.12 worker01
+192.168.10.13 worker02
+```
+
+##### 关闭防火墙配置
+
+```shell
+systemctl disable firewalld
+systemctl stop firewalld
+firewall-cmd --state
+```
+
+##### SELINUX配置
+
+> SELinux在Kubernetes中的作用是提供额外的安全层，增强容器化应用程序和整个集群的安全性。它限制容器的访问权限、提供安全策略、保护文件系统，并记录安全事件，有助于保护集群免受恶意行为和攻击。
+
+```shell
+sed -ri 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+```
+
+### Docker环境准备（所有节点均需要安装）
+
+#### 获取yum 源
+
+```shell
+wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo
+```
+
+#### 安装Docker
+
+```shell
+yum -y install docker-ce
+```
+
+也可以 列出所有的docker 版本 选择指定的版本安装
+
+```shell
+# eg:
+
+yum list docker-ce.x86_64 --showduplicates | sort -r
+```
+
+#### 设置docker开机启动并启动docker 
+
+```shell
+# 开机启动
+systemctl enable docker
+# 启动docker
+systemctl start docker
+```
+
+#### 修改cgroup方式
+
+> cgroup（控制组）是一种用于限制和隔离资源的Linux内核功能。它允许您在共享的主机上为容器分配和管理资源，例如CPU、内存、磁盘和网络等
+
+```shell
+# 在/etc/docker/daemon.json添加如下内容
+vi /etc/docker/daemon.json
+{
+        "exec-opts": ["native.cgroupdriver=systemd"]
+}
+```
+
+重启docker
+
+```shell
+systemctl restart docker
+```
+
+### Kubernetes 1.27.0 集群部署
+
+#### kubeadm、kubelet、kubectl安装
+
+|          | kubeadm                | kubelet                                       | kubectl                |
+| -------- | ---------------------- | --------------------------------------------- | ---------------------- |
+| 版本     | 1.27.0                 | 1.27.0                                        | 1.27.0                 |
+| 安装位置 | 集群所有主机           | 集群所有主机                                  | 集群所有主机           |
+| 作用     | 初始化集群、管理集群等 | 用于接收api-server指令，对pod生命周期进行管理 | 集群应用命令行管理工具 |
+
+##### 配置yum源
+
+```shell
+# k8s源,没有就创建
+vi /etc/yum.repos.d/kubernetes.repo
+
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+enabled=1
+gpgcheck=1
+repo_gpgcheck=0
+gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+```
+
+##### 安装
+
+```
+yum install -y kubelet-1.27.0 kubeadm-1.27.0 kubectl-1.27.0
+```
+
+##### 配置kubelet
+
+> 保证docker使用的cgroupdriver与kubelet使用的cgroup的一致性
+
+```shell
+# vi /etc/sysconfig/kubelet
+KUBELET_EXTRA_ARGS="--cgroup-driver=systemd"
+```
+
+##### 设置kubelet为开机自启动并启动
+
+```shell
+systemctl enable kubelet && systemctl restart kubelet
+```
+
+#### 集群初始化（master初始化）
+
+...
