@@ -212,9 +212,9 @@ hostnamectl set-hostname xxx
 ```shell
 # 在hosts后面追加内容
 vi /etc/hosts
-192.168.10.11 master01
-192.168.10.12 worker01
-192.168.10.13 worker02
+192.168.101.21 master01
+192.168.101.22 worker01
+192.168.101.23 worker02
 ```
 
 ##### 关闭防火墙配置
@@ -292,8 +292,12 @@ chmod 755 /etc/sysconfig/modules/ipvs.modules && bash /etc/sysconfig/modules/ipv
 
 ##### 关闭swap分区
 
-```
+在下面这行添加#注释
+
+```shell
 vi /etc/fstab
+
+# /dev/mapper/centos-swap swap                    swap    defaults        0 0
 ```
 
 ### Docker环境准备（所有节点均需要安装）
@@ -502,3 +506,11 @@ kubeadm init --kubernetes-version=v1.27.0 --pod-network-cidr=10.244.0.0/16 --api
 kubeadm init --kubernetes-version=v1.27.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.101.21 --image-repository=registry.aliyuncs.com/google_containers
 ```
 
+此时会生成从节点加入主节点的链接
+
+```
+kubeadm join 192.168.101.21:6443 --token 717ri3.p9e2hvb7d1qsgaj1 \
+        --discovery-token-ca-cert-hash sha256:67aaf3b9aeeece3114f3b2dcd9348210d33c2f85e20f22ef348cb84e01fd6fd1 
+```
+
+然后在两个从节点 worker01 和worker02上使用kubeadm 加入操作
