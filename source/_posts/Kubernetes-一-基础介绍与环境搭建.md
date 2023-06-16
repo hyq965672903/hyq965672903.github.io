@@ -168,10 +168,11 @@ DNS1=114.114.114.114
 > `BOOTPROTO=static`   
 >
 > `ONBOOT=yes`
-> `IPADDR=192.168.100.11`
+> `IPADDR=192.168.101.21`
 > `NETMASK=255.255.255.0`
-> `GATEWAY=192.168.100.2`
-> `DNS1=114.114.114.114`
+> `GATEWAY=192.168.101.1`
+> `DNS1=192.168.101.1`
+> `DNS2=114.114.114.114`
 
 如果重启网络还是连接不上，可能是NetworkManager导致的，关闭这个服务
 
@@ -189,9 +190,9 @@ systemctl disable NetworkManager
 
 | IP             | CPU  | 内存 | 硬盘 | 主机名   |
 | -------------- | ---- | ---- | ---- | -------- |
-| 192.168.100.11 | 4C   | 6G   | 50g  | master01 |
-| 192.168.100.12 | 4C   | 6G   | 50g  | worker01 |
-| 192.168.100.13 | 4C   | 6G   | 50g  | worker02 |
+| 192.168.101.21 | 4C   | 6G   | 50g  | master01 |
+| 192.168.101.22 | 4C   | 6G   | 50g  | worker01 |
+| 192.168.101.23 | 4C   | 6G   | 50g  | worker02 |
 
 > 注意：这里分配6g内存并不会直接占用系统6g内存给当前虚拟机使用，而是动态去申请的
 
@@ -230,6 +231,69 @@ firewall-cmd --state
 
 ```shell
 sed -ri 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+```
+
+##### 时间同步设置
+
+```shell
+yum install ntpdate -y
+ntpdate time1.aliyun.com
+```
+
+##### 配置内核转发及网桥过滤
+
+添加内核转发及网桥过滤配置文件
+
+```shell
+cat > /etc/sysctl.d/k8s.conf <<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+vm.swappiness = 0
+EOF
+```
+
+加载内核转发及网桥过滤配置文件
+
+```shell
+sysctl -p /etc/sysctl.d/k8s.conf
+```
+
+
+
+##### 安装ipset及ipvsadm
+
+> 主要用于实现service转发。
+
+安装ipset、ipvsadm
+
+```shell
+yum -y install ipset ipvsadm
+```
+
+配置ipvsadm模块加载方式
+
+```shell
+cat > /etc/sysconfig/modules/ipvs.modules <<EOF
+#!/bin/bash
+modprobe -- ip_vs
+modprobe -- ip_vs_rr
+modprobe -- ip_vs_wrr
+modprobe -- ip_vs_sh
+modprobe -- nf_conntrack
+EOF
+```
+
+授权、运行、检查是否加载
+
+```shell
+chmod 755 /etc/sysconfig/modules/ipvs.modules && bash /etc/sysconfig/modules/ipvs.modules && lsmod | grep -e ip_vs -e nf_conntrack
+```
+
+##### 关闭swap分区
+
+```
+vi /etc/fstab
 ```
 
 ### Docker环境准备（所有节点均需要安装）
@@ -281,6 +345,56 @@ vi /etc/docker/daemon.json
 systemctl restart docker
 ```
 
+### **安装containerd** 
+
+#### 安装依赖软件包
+
+```shell
+yum -y install yum-utils device-mapper-persistent-data lvm2
+```
+
+#### 添加阿里Docker源
+
+```shell
+yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+```
+
+#### 添加overlay和netfilter模块
+
+```shell
+cat >>/etc/modules-load.d/containerd.conf <<EOF
+overlay
+br_netfilter
+EOF
+```
+
+#### 安装Containerd，这里安装最新版本
+
+```shell
+yum -y install containerd.io
+```
+
+#### 创建Containerd的配置文件
+
+```shell
+mkdir -p /etc/containerd
+ 
+containerd config default > /etc/containerd/config.toml
+ 
+sed -i '/SystemdCgroup/s/false/true/g' /etc/containerd/config.toml
+ 
+sed -i '/sandbox_image/s/registry.k8s.io/registry.aliyuncs.com\/google_containers/g' /etc/containerd/config.toml
+```
+
+#### 启动containerd
+
+```shell
+systemctl enable containerd
+systemctl start containerd
+```
+
+
+
 ### Kubernetes 1.27.0 集群部署
 
 #### kubeadm、kubelet、kubectl安装
@@ -329,4 +443,62 @@ systemctl enable kubelet && systemctl restart kubelet
 
 #### 集群初始化（master初始化）
 
-...
+##### 方式一：先下载镜像
+
+ **集群镜像准备**
+
+```shell
+kubeadm config images list --kubernetes-version=v1.27.0
+
+#返回如下
+W0615 07:46:40.126110  102911 images.go:80] could not find officially supported version of etcd for Kubernetes v1.27.0, falling back to the nearest etcd version (3.5.7-0)
+registry.k8s.io/kube-apiserver:v1.27.0
+registry.k8s.io/kube-controller-manager:v1.27.0
+registry.k8s.io/kube-scheduler:v1.27.0
+registry.k8s.io/kube-proxy:v1.27.0
+registry.k8s.io/pause:3.9
+registry.k8s.io/etcd:3.5.7-0
+registry.k8s.io/coredns/coredns:v1.10.1
+```
+
+**脚本下载**
+
+```shell
+# vi image_download.sh
+
+#!/bin/bash
+images_list='
+registry.k8s.io/kube-apiserver:v1.27.0
+registry.k8s.io/kube-controller-manager:v1.27.0
+registry.k8s.io/kube-scheduler:v1.27.0
+registry.k8s.io/kube-proxy:v1.27.0
+registry.k8s.io/pause:3.9
+registry.k8s.io/etcd:3.5.7-0
+registry.k8s.io/coredns/coredns:v1.10.1'
+
+for i in $images_list
+do
+        docker pull $i
+done
+
+docker save -o k8s-1-27-0.tar $images_list
+```
+
+**执行**
+
+```shell
+sh image_download.sh
+```
+
+**然后执行集群初始化**
+
+```shell
+kubeadm init --kubernetes-version=v1.27.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.101.21
+```
+
+##### 方式二：使用阿里云镜像
+
+```shell
+kubeadm init --kubernetes-version=v1.27.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.101.21 --image-repository=registry.aliyuncs.com/google_containers
+```
+
