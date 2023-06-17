@@ -168,10 +168,10 @@ DNS1=114.114.114.114
 > `BOOTPROTO=static`   
 >
 > `ONBOOT=yes`
-> `IPADDR=192.168.101.21`
+> `IPADDR=192.168.100.11`
 > `NETMASK=255.255.255.0`
-> `GATEWAY=192.168.101.1`
-> `DNS1=192.168.101.1`
+> `GATEWAY=192.168.100.2`
+> `DNS1=192.168.100.2`
 > `DNS2=114.114.114.114`
 
 如果重启网络还是连接不上，可能是NetworkManager导致的，关闭这个服务
@@ -190,9 +190,9 @@ systemctl disable NetworkManager
 
 | IP             | CPU  | 内存 | 硬盘 | 主机名   |
 | -------------- | ---- | ---- | ---- | -------- |
-| 192.168.101.21 | 4C   | 6G   | 50g  | master01 |
-| 192.168.101.22 | 4C   | 6G   | 50g  | worker01 |
-| 192.168.101.23 | 4C   | 6G   | 50g  | worker02 |
+| 192.168.100.11 | 4C   | 6G   | 50g  | master01 |
+| 192.168.100.12 | 4C   | 6G   | 50g  | worker01 |
+| 192.168.100.13 | 4C   | 6G   | 50g  | worker02 |
 
 > 注意：这里分配6g内存并不会直接占用系统6g内存给当前虚拟机使用，而是动态去申请的
 
@@ -212,9 +212,9 @@ hostnamectl set-hostname xxx
 ```shell
 # 在hosts后面追加内容
 vi /etc/hosts
-192.168.101.21 master01
-192.168.101.22 worker01
-192.168.101.23 worker02
+192.168.100.11 master01
+192.168.100.12 worker01
+192.168.100.13 worker02
 ```
 
 ##### 关闭防火墙配置
@@ -343,6 +343,18 @@ vi /etc/docker/daemon.json
 }
 ```
 
+#### 配置docker镜像加速
+
+```shell
+# 在/etc/docker/daemon.json添加"registry-mirrors": ["https://jjwt39jg.mirror.aliyuncs.com"]
+# 下面为当前最终版本
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "registry-mirrors": ["https://jjwt39jg.mirror.aliyuncs.com"]
+}
+
+```
+
 重启docker
 
 ```shell
@@ -399,13 +411,13 @@ systemctl start containerd
 
 
 
-### Kubernetes 1.27.0 集群部署
+### Kubernetes 1.26.0 集群部署
 
 #### kubeadm、kubelet、kubectl安装
 
 |          | kubeadm                | kubelet                                       | kubectl                |
 | -------- | ---------------------- | --------------------------------------------- | ---------------------- |
-| 版本     | 1.27.0                 | 1.27.0                                        | 1.27.0                 |
+| 版本     | 1.26.0                 | 1.26.0                                        | 1.26.0                 |
 | 安装位置 | 集群所有主机           | 集群所有主机                                  | 集群所有主机           |
 | 作用     | 初始化集群、管理集群等 | 用于接收api-server指令，对pod生命周期进行管理 | 集群应用命令行管理工具 |
 
@@ -427,7 +439,7 @@ gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors
 ##### 安装
 
 ```
-yum install -y kubelet-1.27.0 kubeadm-1.27.0 kubectl-1.27.0
+yum install -y kubelet-1.26.0 kubeadm-1.26.0 kubectl-1.26.0
 ```
 
 ##### 配置kubelet
@@ -452,14 +464,14 @@ systemctl enable kubelet && systemctl restart kubelet
  **集群镜像准备**
 
 ```shell
-kubeadm config images list --kubernetes-version=v1.27.0
+kubeadm config images list --kubernetes-version=v1.26.0
 
 #返回如下
-W0615 07:46:40.126110  102911 images.go:80] could not find officially supported version of etcd for Kubernetes v1.27.0, falling back to the nearest etcd version (3.5.7-0)
-registry.k8s.io/kube-apiserver:v1.27.0
-registry.k8s.io/kube-controller-manager:v1.27.0
-registry.k8s.io/kube-scheduler:v1.27.0
-registry.k8s.io/kube-proxy:v1.27.0
+W0615 07:46:40.126110  102911 images.go:80] could not find officially supported version of etcd for Kubernetes v1.26.0, falling back to the nearest etcd version (3.5.7-0)
+registry.k8s.io/kube-apiserver:v1.26.0
+registry.k8s.io/kube-controller-manager:v1.26.0
+registry.k8s.io/kube-scheduler:v1.26.0
+registry.k8s.io/kube-proxy:v1.26.0
 registry.k8s.io/pause:3.9
 registry.k8s.io/etcd:3.5.7-0
 registry.k8s.io/coredns/coredns:v1.10.1
@@ -472,10 +484,10 @@ registry.k8s.io/coredns/coredns:v1.10.1
 
 #!/bin/bash
 images_list='
-registry.k8s.io/kube-apiserver:v1.27.0
-registry.k8s.io/kube-controller-manager:v1.27.0
-registry.k8s.io/kube-scheduler:v1.27.0
-registry.k8s.io/kube-proxy:v1.27.0
+registry.k8s.io/kube-apiserver:v1.26.0
+registry.k8s.io/kube-controller-manager:v1.26.0
+registry.k8s.io/kube-scheduler:v1.26.0
+registry.k8s.io/kube-proxy:v1.26.0
 registry.k8s.io/pause:3.9
 registry.k8s.io/etcd:3.5.7-0
 registry.k8s.io/coredns/coredns:v1.10.1'
@@ -497,20 +509,202 @@ sh image_download.sh
 **然后执行集群初始化**
 
 ```shell
-kubeadm init --kubernetes-version=v1.27.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.101.21
+kubeadm init --kubernetes-version=v1.26.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11
 ```
 
 ##### 方式二：使用阿里云镜像
 
 ```shell
-kubeadm init --kubernetes-version=v1.27.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.101.21 --image-repository=registry.aliyuncs.com/google_containers
+kubeadm init --kubernetes-version=v1.26.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11 --image-repository=registry.aliyuncs.com/google_containers
 ```
 
 此时会生成从节点加入主节点的链接
 
-```
-kubeadm join 192.168.101.21:6443 --token 717ri3.p9e2hvb7d1qsgaj1 \
-        --discovery-token-ca-cert-hash sha256:67aaf3b9aeeece3114f3b2dcd9348210d33c2f85e20f22ef348cb84e01fd6fd1 
+```shell
+ge-repository=registry.aliyuncs.com/google_containers
+[init] Using Kubernetes version: v1.26.0
+[preflight] Running pre-flight checks
+[preflight] Pulling images required for setting up a Kubernetes cluster
+[preflight] This might take a minute or two, depending on the speed of your internet connection
+[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+[certs] Using certificateDir folder "/etc/kubernetes/pki"
+[certs] Generating "ca" certificate and key
+[certs] Generating "apiserver" certificate and key
+[certs] apiserver serving cert is signed for DNS names [kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local master01] and IPs [10.96.0.1 192.168.100.11]
+[certs] Generating "apiserver-kubelet-client" certificate and key
+[certs] Generating "front-proxy-ca" certificate and key
+[certs] Generating "front-proxy-client" certificate and key
+[certs] Generating "etcd/ca" certificate and key
+[certs] Generating "etcd/server" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [localhost master01] and IPs [192.168.100.11 127.0.0.1 ::1]
+[certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [localhost master01] and IPs [192.168.100.11 127.0.0.1 ::1]
+[certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] Generating "apiserver-etcd-client" certificate and key
+[certs] Generating "sa" key and public key
+[kubeconfig] Using kubeconfig folder "/etc/kubernetes"
+[kubeconfig] Writing "admin.conf" kubeconfig file
+[kubeconfig] Writing "kubelet.conf" kubeconfig file
+[kubeconfig] Writing "controller-manager.conf" kubeconfig file
+[kubeconfig] Writing "scheduler.conf" kubeconfig file
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Starting the kubelet
+[control-plane] Using manifest folder "/etc/kubernetes/manifests"
+[control-plane] Creating static Pod manifest for "kube-apiserver"
+[control-plane] Creating static Pod manifest for "kube-controller-manager"
+[control-plane] Creating static Pod manifest for "kube-scheduler"
+[etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
+[wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
+[apiclient] All control plane components are healthy after 3.501651 seconds
+[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[kubelet] Creating a ConfigMap "kubelet-config" in namespace kube-system with the configuration for the kubelets in the cluster
+[upload-certs] Skipping phase. Please see --upload-certs
+[mark-control-plane] Marking the node master01 as control-plane by adding the labels: [node-role.kubernetes.io/control-plane node.kubernetes.io/exclude-from-external-load-balancers]
+[mark-control-plane] Marking the node master01 as control-plane by adding the taints [node-role.kubernetes.io/control-plane:NoSchedule]
+[bootstrap-token] Using token: jr42jp.h6n7yzqo0gra5j5q
+[bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
+[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to get nodes
+[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstrap-token] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstrap-token] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[bootstrap-token] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
+[kubelet-finalize] Updating "/etc/kubernetes/kubelet.conf" to point to a rotatable kubelet client certificate and key
+[addons] Applied essential addon: CoreDNS
+[addons] Applied essential addon: kube-proxy
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 192.168.100.11:6443 --token jr42jp.h6n7yzqo0gra5j5q \
+        --discovery-token-ca-cert-hash sha256:29d79ae863c683314a6f5f8ee4338e4bc5b78885e4e1888dbbad132737720ff2 
 ```
 
-然后在两个从节点 worker01 和worker02上使用kubeadm 加入操作
+
+
+然后更新生成的信息 主节点执行(**master01执行**)
+
+```shell
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+```
+
+两个从节点（worker01,worker02）执行加入操作，然后在两个从节点 worker01 和worker02上使用kubeadm 加入操作
+
+```shell
+kubeadm join 192.168.100.11:6443 --token jr42jp.h6n7yzqo0gra5j5q \
+        --discovery-token-ca-cert-hash sha256:29d79ae863c683314a6f5f8ee4338e4bc5b78885e4e1888dbbad132737720ff2 
+```
+
+> 如果加入报错节点存在可以执行重置后重新加入 `kubeadm reset`
+
+在主节点上查看从节点是否加入
+
+```shell
+kubectl  get node
+```
+
+#### 集群网络准备
+
+> 使用calico部署集群网络
+>
+> 安装参考网址：https://projectcalico.docs.tigera.io/about/about-calico
+
+##### 下载operator资源清单文件
+
+如果不能直接应用（网络原因 可以先找个下载下来再使用apply应用）
+
+
+```shell
+# 网络原因，宿主机(需要具备访问的条件)手动访问下面地址，将里面的内容放到tigera-operator.yaml中
+https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/tigera-operator.yaml
+mkdir calicodir
+cd calicodir
+# 应用资源清单文件，创建operator  
+kubectl apply --server-side -f tigera-operator.yaml
+```
+
+> 上面文件过大  `--server-side` 目的解决 tigera-operator.yaml 过大导致创建失败的问题，停止使用 Client Side Apply（运行 kubectl apply 时的当前默认设置），而是使用 Server Side Apply，它不会将 last-applied-configuration 注释添加到对象。
+>
+> kubectl delete -f tigera-operator.yaml 先删除再创建也可以
+>
+> 参考：https://www.cnblogs.com/lzjloveit/p/17223453.html
+
+```shell
+# 网络原因，宿主机(需要具备访问的条件)手动访问下面地址，将里面的内容放到custom-resources.yaml中
+https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/custom-resources.yaml
+#打开 custom-resources.yaml文件将cidr 改为上面 kubeadm 初始化的时候设置的 --pod-network-cidr的配置信息
+cidr: 192.168.0.0/16  改为      cidr: 10.244.0.0/16 
+
+# 执行是需要保证上面tigera-operator.yaml 已经执行成功
+kubectl apply -f custom-resources.yaml
+```
+
+##### 验证网络情况
+
+```shell
+#监视calico-sysem命名空间中pod运行情况
+watch kubectl get pods -n calico-system
+
+#查看kube-system命名空间中coredns状态，处于Running状态表明联网成功
+kubectl get pods -n calico-system
+
+```
+
+#### 删除重装相关
+
+##### 停止kubelet服务
+
+```shell
+systemctl stop kubelet
+systemctl disable kubelet
+```
+
+##### 使用 kubeadm 重置
+
+```
+kubeadm reset
+```
+
+##### 卸载相关应用
+
+```shell
+sudo yum remove -y kubeadm kubectl kubelet kubernetes-cni kube*   
+sudo yum autoremove -y
+```
+
+##### 配置清理
+
+```shell
+rm -rf /etc/systemd/system/kubelet.service
+rm -rf /etc/systemd/system/kube*
+```
+
+##### 手动清理kubernetes
+
+```shell
+sudo rm -rf ~/.kube
+sudo rm -rf /etc/kubernetes/
+sudo rm -rf /var/lib/kube*
+```
+
+此时删除失败会有占用 可执行 `umount $(df -HT | grep '/var/lib/kubelet/pods' | awk '{print $7}')` 后再清理
+
