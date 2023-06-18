@@ -409,15 +409,21 @@ systemctl enable containerd
 systemctl start containerd
 ```
 
+#### 验证containerd是否安装成功
 
+```shell
+containerd -v
+```
 
-### Kubernetes 1.26.0 集群部署
+### Kubernetes 1.26.2 集群部署
+
+> k8s官方于 2020 年 12 月宣布弃用 dockershim，此后k8s从 1.2.0 到 1.2.3 版本如果使用 Docker 作为容器运行时会在 kubelet 启动时会打印一个弃用的警告日志，而最终k8s官方在 2022 年 4 月 的 Kubernetes 1.24 版本中完全移除了 dockershim（[弃用dockershim相关问题官方说明](https://link.zhihu.com/?target=https%3A//kubernetes.io/zh-cn/blog/2022/02/17/dockershim-faq/)）因此本次要搭建的 Kubernetes 1.26.2 版本将采用官方推荐的 containerd 作为容器运行时。对于 k8s+containerd 和 k8s+docker 的两种方案网上也有网友进行了性能测试对比，前者的运行速度、效率都要比后者高，且各大公有云厂商也都往 containerd 切换，因此 k8s+containerd 的组合就成了目前最合适的方案了
 
 #### kubeadm、kubelet、kubectl安装
 
 |          | kubeadm                | kubelet                                       | kubectl                |
 | -------- | ---------------------- | --------------------------------------------- | ---------------------- |
-| 版本     | 1.26.0                 | 1.26.0                                        | 1.26.0                 |
+| 版本     | 1.26.2                 | 1.26.2                                        | 1.26.2                 |
 | 安装位置 | 集群所有主机           | 集群所有主机                                  | 集群所有主机           |
 | 作用     | 初始化集群、管理集群等 | 用于接收api-server指令，对pod生命周期进行管理 | 集群应用命令行管理工具 |
 
@@ -438,8 +444,8 @@ gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors
 
 ##### 安装
 
-```
-yum install -y kubelet-1.26.0 kubeadm-1.26.0 kubectl-1.26.0
+```shell
+yum install -y kubelet-1.26.2 kubeadm-1.26.2 kubectl-1.26.2
 ```
 
 ##### 配置kubelet
@@ -459,19 +465,21 @@ systemctl enable kubelet && systemctl restart kubelet
 
 #### 集群初始化（master初始化）
 
+
+
 ##### 方式一：先下载镜像
 
  **集群镜像准备**
 
 ```shell
-kubeadm config images list --kubernetes-version=v1.26.0
+kubeadm config images list --kubernetes-version=v1.26.2
 
 #返回如下
-W0615 07:46:40.126110  102911 images.go:80] could not find officially supported version of etcd for Kubernetes v1.26.0, falling back to the nearest etcd version (3.5.7-0)
-registry.k8s.io/kube-apiserver:v1.26.0
-registry.k8s.io/kube-controller-manager:v1.26.0
-registry.k8s.io/kube-scheduler:v1.26.0
-registry.k8s.io/kube-proxy:v1.26.0
+W0615 07:46:40.126110  102911 images.go:80] could not find officially supported version of etcd for Kubernetes v1.26.2, falling back to the nearest etcd version (3.5.7-0)
+registry.k8s.io/kube-apiserver:v1.26.2
+registry.k8s.io/kube-controller-manager:v1.26.2
+registry.k8s.io/kube-scheduler:v1.26.2
+registry.k8s.io/kube-proxy:v1.26.2
 registry.k8s.io/pause:3.9
 registry.k8s.io/etcd:3.5.7-0
 registry.k8s.io/coredns/coredns:v1.10.1
@@ -484,10 +492,10 @@ registry.k8s.io/coredns/coredns:v1.10.1
 
 #!/bin/bash
 images_list='
-registry.k8s.io/kube-apiserver:v1.26.0
-registry.k8s.io/kube-controller-manager:v1.26.0
-registry.k8s.io/kube-scheduler:v1.26.0
-registry.k8s.io/kube-proxy:v1.26.0
+registry.k8s.io/kube-apiserver:v1.26.2
+registry.k8s.io/kube-controller-manager:v1.26.2
+registry.k8s.io/kube-scheduler:v1.26.2
+registry.k8s.io/kube-proxy:v1.26.2
 registry.k8s.io/pause:3.9
 registry.k8s.io/etcd:3.5.7-0
 registry.k8s.io/coredns/coredns:v1.10.1'
@@ -509,20 +517,20 @@ sh image_download.sh
 **然后执行集群初始化**
 
 ```shell
-kubeadm init --kubernetes-version=v1.26.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11
+kubeadm init --kubernetes-version=v1.26.2 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11
 ```
 
 ##### 方式二：使用阿里云镜像
 
 ```shell
-kubeadm init --kubernetes-version=v1.26.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11 --image-repository=registry.aliyuncs.com/google_containers
+kubeadm init --kubernetes-version=v1.26.2 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11 --image-repository=registry.aliyuncs.com/google_containers
 ```
 
 此时会生成从节点加入主节点的链接
 
 ```shell
 ge-repository=registry.aliyuncs.com/google_containers
-[init] Using Kubernetes version: v1.26.0
+[init] Using Kubernetes version: v1.26.2
 [preflight] Running pre-flight checks
 [preflight] Pulling images required for setting up a Kubernetes cluster
 [preflight] This might take a minute or two, depending on the speed of your internet connection
@@ -616,6 +624,12 @@ kubeadm join 192.168.100.11:6443 --token jr42jp.h6n7yzqo0gra5j5q \
 
 > 如果加入报错节点存在可以执行重置后重新加入 `kubeadm reset`
 
+如果忘了可以使用下面的这行命令重新生成
+
+```shell
+ kubeadm token create --print-join-command
+```
+
 在主节点上查看从节点是否加入
 
 ```shell
@@ -628,7 +642,9 @@ kubectl  get node
 >
 > 安装参考网址：https://projectcalico.docs.tigera.io/about/about-calico
 
-##### 下载operator资源清单文件
+#### 第一种：基于operator安装calico
+
+###### 下载operator资源清单文件
 
 如果不能直接应用（网络原因 可以先找个下载下来再使用apply应用）
 
@@ -658,9 +674,49 @@ cidr: 192.168.0.0/16  改为      cidr: 10.244.0.0/16
 kubectl apply -f custom-resources.yaml
 ```
 
+##### 第二种:基于calico.yml安装
+
+###### 下载calico配置文件
+
+> 这里3.25或者3.26版本都行
+
+```shell
+wget  https://docs.tigera.io/archive/v3.25/manifests/calico.yaml
+```
+
+这里下载不下来就本地下载后传入服务器
+
+###### 修改配置文件
+
+```text
+将
+# - name: CALICO_IPV4POOL_CIDR
+#   value: "192.168.0.0/16"
+修改为
+- name: CALICO_IPV4POOL_CIDR
+  value: "10.100.0.0/16"
+```
+
+###### 修改calico 文件
+
+去掉前缀，目的是可以从镜像中下载，需要提前配置docker镜像
+
+```shell
+cat calico.yaml |grep 'image:'
+sed -i 's#docker.io/##g' calico.yaml
+```
+
+###### 执行创建calico.yaml创建网络
+
+```shell
+kubectl apply -f calico.yaml
+```
+
 ##### 验证网络情况
 
 ```shell
+kubectl get pods --all-namespaces
+
 #监视calico-sysem命名空间中pod运行情况
 watch kubectl get pods -n calico-system
 
