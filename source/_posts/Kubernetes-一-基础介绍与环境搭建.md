@@ -470,7 +470,7 @@ systemctl start containerd
 containerd -v
 ```
 
-### Kubernetes 1.21.0 集群部署
+### Kubernetes 1.21.0 （单master）集群部署
 
 
 
@@ -913,5 +913,18 @@ kube-system   kube-scheduler-master01                    1/1     Running   5    
 
 ```shell
  kubectl delete pod calico-node-xxx -n kube-system
+```
+
+常用基础命令
+
+```shell
+#查看所有的节点
+kubectl get nodes
+
+#真实情况
+kubectl get cs
+
+#查看管理相关的pod运行情况(calico也在这有版本再 calico-system)
+kubectl get pods -n kube-system
 ```
 
