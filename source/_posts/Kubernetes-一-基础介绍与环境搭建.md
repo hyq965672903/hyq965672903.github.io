@@ -159,7 +159,8 @@ ONBOOT=yes
 IPADDR=192.168.100.11
 NETMASK=255.255.255.0
 GATEWAY=192.168.100.2
-DNS1=114.114.114.114
+DNS1=192.168.100.2
+DNS2=114.114.114.114
 
 ```
 
@@ -300,26 +301,40 @@ vi /etc/fstab
 # /dev/mapper/centos-swap swap                    swap    defaults        0 0
 ```
 
+### 安装版本说明
+
+> k8s官方于 2020 年 12 月宣布弃用 dockershim，此后k8s从 1.2.0 到 1.2.3 版本如果使用 Docker 作为容器运行时会在 kubelet 启动时会打印一个弃用的警告日志，而最终k8s官方在 2022 年 4 月 的 Kubernetes 1.24 版本中完全移除了 dockershim（[弃用dockershim相关问题官方说明](https://link.zhihu.com/?target=https%3A//kubernetes.io/zh-cn/blog/2022/02/17/dockershim-faq/)）
+
+k8s官方在1.24版本以后移除了docker ，后续采用`k8s+containerd`方式进行搭配使用，如果后续还需使用docker 需要安装`cri-docker` 其实也就是`k8s+docker+cri-docker`
+
+对于 k8s+containerd 和 k8s+docker 的两种方案网上也有网友进行了性能测试对比，前者的运行速度、效率都要比后者高，且各大公有云厂商也都往 containerd 切换，因此 k8s+containerd 的组合就成了目前最合适的方案了
+
+我们这里第一简单安装采用低版本的k8s+docker就行，后续会继续出一篇新版本 k8s1.27版本的来做
+
+版本如下：
+
+查阅地址：https://github.com/kubernetes/kubernetes/blob/release-1.22/build/dependencies.yaml
+
+`kubernetes 1.21.0`+`docker 20.10`
+
 ### Docker环境准备（所有节点均需要安装）
+
+> docker 20.10 版本安装
 
 #### 获取yum 源
 
 ```shell
 wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo
+
+# 列出所有的docker 版本 选择指定的版本安装
+yum list docker-ce.x86_64 --showduplicates | sort -r
 ```
 
 #### 安装Docker
 
 ```shell
-yum -y install docker-ce
-```
-
-也可以 列出所有的docker 版本 选择指定的版本安装
-
-```shell
-# eg:
-
-yum list docker-ce.x86_64 --showduplicates | sort -r
+# --setopt=obsoletes=0  告诉Yum在处理软件包依赖关系时不考虑旧的或过时的软件包
+yum -y install --setopt=obsoletes=0 docker-ce-20.10.23-3.el7
 ```
 
 #### 设置docker开机启动并启动docker 
@@ -358,10 +373,45 @@ vi /etc/docker/daemon.json
 重启docker
 
 ```shell
-systemctl restart docker
+sudo systemctl daemon-reload
+sudo systemctl restart docker
 ```
 
+#### dokcer卸载
+
+```shell
+#杀死所有运行容器
+docker kill $(docker ps -a -q)
+#删除所有容器
+docker rm $(docker ps -a -q)
+#删除所有镜像
+docker rmi $(docker images -q)
+
+#停止docker相关服务
+sudo systemctl stop docker.socket
+sudo systemctl stop docker.service
+
+#停止docker服务
+systemctl stop docker
+
+#删除存储目录
+rm -rf /etc/docker
+rm -rf /run/docker
+rm -rf /var/lib/dockershim
+rm -rf /var/lib/docker
+
+#查看docker 安装的包
+yum list installed | grep docker
+
+# 卸载docker相关安装包
+yum remove docker-*
+```
+
+
+
 ### **安装containerd** 
+
+> 我们当前安装 `kubernetes 1.21.0`+`docker 20.10`，此步骤跳过
 
 #### 安装依赖软件包
 
@@ -415,15 +465,15 @@ systemctl start containerd
 containerd -v
 ```
 
-### Kubernetes 1.26.2 集群部署
+### Kubernetes 1.21.0 集群部署
 
-> k8s官方于 2020 年 12 月宣布弃用 dockershim，此后k8s从 1.2.0 到 1.2.3 版本如果使用 Docker 作为容器运行时会在 kubelet 启动时会打印一个弃用的警告日志，而最终k8s官方在 2022 年 4 月 的 Kubernetes 1.24 版本中完全移除了 dockershim（[弃用dockershim相关问题官方说明](https://link.zhihu.com/?target=https%3A//kubernetes.io/zh-cn/blog/2022/02/17/dockershim-faq/)）因此本次要搭建的 Kubernetes 1.26.2 版本将采用官方推荐的 containerd 作为容器运行时。对于 k8s+containerd 和 k8s+docker 的两种方案网上也有网友进行了性能测试对比，前者的运行速度、效率都要比后者高，且各大公有云厂商也都往 containerd 切换，因此 k8s+containerd 的组合就成了目前最合适的方案了
+
 
 #### kubeadm、kubelet、kubectl安装
 
 |          | kubeadm                | kubelet                                       | kubectl                |
 | -------- | ---------------------- | --------------------------------------------- | ---------------------- |
-| 版本     | 1.26.2                 | 1.26.2                                        | 1.26.2                 |
+| 版本     | 1.21.0                 | 1.21.0                                        | 1.21.0                 |
 | 安装位置 | 集群所有主机           | 集群所有主机                                  | 集群所有主机           |
 | 作用     | 初始化集群、管理集群等 | 用于接收api-server指令，对pod生命周期进行管理 | 集群应用命令行管理工具 |
 
@@ -445,7 +495,7 @@ gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors
 ##### 安装
 
 ```shell
-yum install -y kubelet-1.26.2 kubeadm-1.26.2 kubectl-1.26.2
+yum install -y kubelet-1.21.0 kubeadm-1.21.0 kubectl-1.21.0
 ```
 
 ##### 配置kubelet
@@ -465,6 +515,11 @@ systemctl enable kubelet && systemctl restart kubelet
 
 #### 集群初始化（master初始化）
 
+```shell
+#镜像清理
+docker system prune -a
+```
+
 
 
 ##### 方式一：先下载镜像
@@ -472,33 +527,40 @@ systemctl enable kubelet && systemctl restart kubelet
  **集群镜像准备**
 
 ```shell
-kubeadm config images list --kubernetes-version=v1.26.2
+kubeadm config images list --kubernetes-version=v1.21.0
 
 #返回如下
-W0615 07:46:40.126110  102911 images.go:80] could not find officially supported version of etcd for Kubernetes v1.26.2, falling back to the nearest etcd version (3.5.7-0)
-registry.k8s.io/kube-apiserver:v1.26.2
-registry.k8s.io/kube-controller-manager:v1.26.2
-registry.k8s.io/kube-scheduler:v1.26.2
-registry.k8s.io/kube-proxy:v1.26.2
-registry.k8s.io/pause:3.9
-registry.k8s.io/etcd:3.5.7-0
-registry.k8s.io/coredns/coredns:v1.10.1
+k8s.gcr.io/kube-apiserver:v1.21.0
+k8s.gcr.io/kube-controller-manager:v1.21.0
+k8s.gcr.io/kube-scheduler:v1.21.0
+k8s.gcr.io/kube-proxy:v1.21.0
+k8s.gcr.io/pause:3.4.1
+k8s.gcr.io/etcd:3.4.13-0
+k8s.gcr.io/coredns/coredns:v1.8.0
 ```
 
 **脚本下载**
+
+> 官网 k8s.gcr.io 由于网络原因下载不下来
+>
+> 这里选用镜像下载
+>
+>  registry.cn-hangzhou.aliyuncs.com/google_containers/ 该镜像中 pause:3.4.1和 etcd:3.4.13-0 找不到 原因目前未知
+>
+>  registry.aliyuncs.com/google_containers/ 目前可行 就用它了
 
 ```shell
 # vi image_download.sh
 
 #!/bin/bash
 images_list='
-registry.k8s.io/kube-apiserver:v1.26.2
-registry.k8s.io/kube-controller-manager:v1.26.2
-registry.k8s.io/kube-scheduler:v1.26.2
-registry.k8s.io/kube-proxy:v1.26.2
-registry.k8s.io/pause:3.9
-registry.k8s.io/etcd:3.5.7-0
-registry.k8s.io/coredns/coredns:v1.10.1'
+registry.aliyuncs.com/google_containers/kube-apiserver:v1.21.0
+registry.aliyuncs.com/google_containers/kube-controller-manager:v1.21.0
+registry.aliyuncs.com/google_containers/kube-scheduler:v1.21.0
+registry.aliyuncs.com/google_containers/kube-proxy:v1.21.0
+registry.aliyuncs.com/google_containers/pause:3.4.1
+registry.aliyuncs.com/google_containers/etcd:3.4.13-0
+registry.aliyuncs.com/google_containers/coredns/coredns:v1.8.0
 
 for i in $images_list
 do
@@ -517,20 +579,42 @@ sh image_download.sh
 **然后执行集群初始化**
 
 ```shell
-kubeadm init --kubernetes-version=v1.26.2 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11
+kubeadm init --kubernetes-version=v1.21.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11
 ```
+
+###### 遇到的问题
+
+方式一执行**集群初始化**的时候还是会走k8s.gcr.io，所以应该从阿里云下下来后，重新tag 打成 k8s.gcr.io下面的包再执行初始化
 
 ##### 方式二：使用阿里云镜像
 
 ```shell
-kubeadm init --kubernetes-version=v1.26.2 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11 --image-repository=registry.aliyuncs.com/google_containers
+kubeadm init --kubernetes-version=v1.21.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.100.11 --image-repository=registry.aliyuncs.com/google_containers
 ```
+
+###### 遇到的问题
+
+failed to pull image registry.aliyuncs.com/google_containers/coredns/coredns:v1.8.0
+
+原因：
+
+**安装时需要从 k8s.gcr.io 拉取镜像，但是该网站被我国屏蔽了，国内没法正常访问导致没法正常进行kubernetes正常安装,从Docker官方默认镜像平台拉取镜像并重新打tag的方式来绕过对 k8s.gcr.io 的访问**
+
+```shell
+#从docker官网拉取
+docker pull coredns/coredns:1.8.0
+#重新打标签
+docker tag coredns/coredns:1.8.0 registry.aliyuncs.com/google_containers/coredns/coredns:v1.8.0
+# 删除旧的镜像
+docker rmi coredns/coredns:1.8.0
+```
+
+
 
 此时会生成从节点加入主节点的链接
 
 ```shell
-ge-repository=registry.aliyuncs.com/google_containers
-[init] Using Kubernetes version: v1.26.2
+[init] Using Kubernetes version: v1.21.0
 [preflight] Running pre-flight checks
 [preflight] Pulling images required for setting up a Kubernetes cluster
 [preflight] This might take a minute or two, depending on the speed of your internet connection
@@ -564,18 +648,19 @@ ge-repository=registry.aliyuncs.com/google_containers
 [control-plane] Creating static Pod manifest for "kube-scheduler"
 [etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
 [wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
-[apiclient] All control plane components are healthy after 3.501651 seconds
+[kubelet-check] Initial timeout of 40s passed.
+[apiclient] All control plane components are healthy after 56.002741 seconds
 [upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
-[kubelet] Creating a ConfigMap "kubelet-config" in namespace kube-system with the configuration for the kubelets in the cluster
+[kubelet] Creating a ConfigMap "kubelet-config-1.21" in namespace kube-system with the configuration for the kubelets in the cluster
 [upload-certs] Skipping phase. Please see --upload-certs
-[mark-control-plane] Marking the node master01 as control-plane by adding the labels: [node-role.kubernetes.io/control-plane node.kubernetes.io/exclude-from-external-load-balancers]
-[mark-control-plane] Marking the node master01 as control-plane by adding the taints [node-role.kubernetes.io/control-plane:NoSchedule]
-[bootstrap-token] Using token: jr42jp.h6n7yzqo0gra5j5q
+[mark-control-plane] Marking the node master01 as control-plane by adding the labels: [node-role.kubernetes.io/master(deprecated) node-role.kubernetes.io/control-plane node.kubernetes.io/exclude-from-external-load-balancers]
+[mark-control-plane] Marking the node master01 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+[bootstrap-token] Using token: 4x919n.wofqxskn85v5skmj
 [bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
-[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to get nodes
-[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
-[bootstrap-token] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
-[bootstrap-token] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to get nodes
+[bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstrap-token] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstrap-token] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
 [bootstrap-token] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
 [kubelet-finalize] Updating "/etc/kubernetes/kubelet.conf" to point to a rotatable kubelet client certificate and key
 [addons] Applied essential addon: CoreDNS
@@ -599,8 +684,8 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 
 Then you can join any number of worker nodes by running the following on each as root:
 
-kubeadm join 192.168.100.11:6443 --token jr42jp.h6n7yzqo0gra5j5q \
-        --discovery-token-ca-cert-hash sha256:29d79ae863c683314a6f5f8ee4338e4bc5b78885e4e1888dbbad132737720ff2 
+kubeadm join 192.168.100.11:6443 --token 4x919n.wofqxskn85v5skmj \
+        --discovery-token-ca-cert-hash sha256:d0f8229aec07486e0f42181ef44069762b57910f1dd8d78edb9b5e64ccf82b9c 
 ```
 
 
@@ -618,8 +703,8 @@ kubeadm join 192.168.100.11:6443 --token jr42jp.h6n7yzqo0gra5j5q \
 两个从节点（worker01,worker02）执行加入操作，然后在两个从节点 worker01 和worker02上使用kubeadm 加入操作
 
 ```shell
-kubeadm join 192.168.100.11:6443 --token jr42jp.h6n7yzqo0gra5j5q \
-        --discovery-token-ca-cert-hash sha256:29d79ae863c683314a6f5f8ee4338e4bc5b78885e4e1888dbbad132737720ff2 
+kubeadm join 192.168.100.11:6443 --token 4x919n.wofqxskn85v5skmj \
+        --discovery-token-ca-cert-hash sha256:d0f8229aec07486e0f42181ef44069762b57910f1dd8d78edb9b5e64ccf82b9c 
 ```
 
 > 如果加入报错节点存在可以执行重置后重新加入 `kubeadm reset`
@@ -641,17 +726,21 @@ kubectl  get node
 > 使用calico部署集群网络
 >
 > 安装参考网址：https://projectcalico.docs.tigera.io/about/about-calico
+>
+> 看 https://docs.tigera.io/archive/v3.23/getting-started/kubernetes/requirements 介绍
+>
+> 我们这里k8s用的版本是1.21.0 所对应的calico 版本是v3.23
 
 #### 第一种：基于operator安装calico
 
-###### 下载operator资源清单文件
+##### 下载operator资源清单文件
 
 如果不能直接应用（网络原因 可以先找个下载下来再使用apply应用）
 
 
 ```shell
 # 网络原因，宿主机(需要具备访问的条件)手动访问下面地址，将里面的内容放到tigera-operator.yaml中
-https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/tigera-operator.yaml
+https://projectcalico.docs.tigera.io/archive/v3.23/manifests/tigera-operator.yaml
 mkdir calicodir
 cd calicodir
 # 应用资源清单文件，创建operator  
@@ -666,7 +755,7 @@ kubectl apply --server-side -f tigera-operator.yaml
 
 ```shell
 # 网络原因，宿主机(需要具备访问的条件)手动访问下面地址，将里面的内容放到custom-resources.yaml中
-https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/custom-resources.yaml
+https://projectcalico.docs.tigera.io/archive/v3.23/manifests/custom-resources.yaml
 #打开 custom-resources.yaml文件将cidr 改为上面 kubeadm 初始化的时候设置的 --pod-network-cidr的配置信息
 cidr: 192.168.0.0/16  改为      cidr: 10.244.0.0/16 
 
@@ -674,58 +763,80 @@ cidr: 192.168.0.0/16  改为      cidr: 10.244.0.0/16
 kubectl apply -f custom-resources.yaml
 ```
 
-##### 第二种:基于calico.yml安装
+#### 第二种:基于calico.yml安装
 
-###### 下载calico配置文件
+##### 下载calico配置文件
 
-> 这里3.25或者3.26版本都行
+> 这里 也是使用3.23版本
 
 ```shell
-wget  https://docs.tigera.io/archive/v3.25/manifests/calico.yaml
+wget  https://docs.projectcalico.org/v3.23/manifests/calico.yaml  --no-check-certificate
 ```
 
 这里下载不下来就本地下载后传入服务器
 
-###### 修改配置文件
+##### 修改配置文件
 
 ```text
+vi calico.yaml
 将
 # - name: CALICO_IPV4POOL_CIDR
 #   value: "192.168.0.0/16"
 修改为
 - name: CALICO_IPV4POOL_CIDR
-  value: "10.100.0.0/16"
+  value: "10.244.0.0/16"
+
+
+#然后直接搜索 CLUSTER_TYPE，找到下面这段
+- name: CLUSTER_TYPE
+   value: "k8s,bgp"
+#然后添加一个和 CLUSTER_TYPE 同级的IP_AUTODETECTION_METHOD字段，具体如下：
+# value 就是指定你的网卡名字，我这里网卡是 ens33，然后直接配置的通配符 ens.*
+- name: IP_AUTODETECTION_METHOD  
+  value: "interface=ens.*"
 ```
 
-###### 修改calico 文件
+ 重点注意：**这里不能添加时候不能使用tab只能使用空格键当做空格**，不然创建的时候会报错
 
-去掉前缀，目的是可以从镜像中下载，需要提前配置docker镜像
+##### 手动加载镜像（由于网络原因）
+
+```shell
+[root@master01 calicodir]# cat calico.yaml |grep 'image:'
+          image: docker.io/calico/cni:v3.23.5
+          image: docker.io/calico/cni:v3.23.5
+          image: docker.io/calico/node:v3.23.5
+          image: docker.io/calico/node:v3.23.5
+```
+
+calico 用的是3.23.5版本
+
+手动下载，后上传服务器解压，cd 到images目录，使用 `docker load -i  xxxx.tar` 将镜像载入到当前服务器中
+
+https://github.com/projectcalico/calico/releases/tag/v3.23.5 
+
+##### 修改calico 文件
+
+>  修改镜从阿里云上海地区拉取
 
 ```shell
 cat calico.yaml |grep 'image:'
+# 此操作会保证当前calico配置文件使用的镜像和当前载入的镜像名一致
 sed -i 's#docker.io/##g' calico.yaml
 ```
 
-###### 执行创建calico.yaml创建网络
+##### 执行创建calico.yaml创建网络
 
 ```shell
 kubectl apply -f calico.yaml
 ```
 
-##### 验证网络情况
+参考：
 
-```shell
-kubectl get pods --all-namespaces
+- https://www.cnblogs.com/khtt/p/16563088.html
 
-#监视calico-sysem命名空间中pod运行情况
-watch kubectl get pods -n calico-system
+- https://www.lixueduan.com/posts/kubernetes/01-install/#3-%E5%AE%89%E8%A3%85-calicohttpsprojectcalicodocstigeraiogetting-startedkubernetesquickstart
 
-#查看kube-system命名空间中coredns状态，处于Running状态表明联网成功
-kubectl get pods -n calico-system
-
-```
-
-#### 删除重装相关
+##### 验证网络情况删除重装相关
 
 ##### 停止kubelet服务
 
