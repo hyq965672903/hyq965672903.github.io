@@ -365,7 +365,12 @@ vi /etc/docker/daemon.json
 # 下面为当前最终版本
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
-  "registry-mirrors": ["https://jjwt39jg.mirror.aliyuncs.com"]
+  "registry-mirrors": [
+  	"http://jjwt39jg.mirror.aliyuncs.com",
+  	"https://registry.docker-cn.com",
+	"http://hub-mirror.c.163.com",
+	"https://docker.mirrors.ustc.edu.cn"
+  ]
 }
 
 ```
@@ -731,9 +736,9 @@ kubectl  get node
 >
 > 我们这里k8s用的版本是1.21.0 所对应的calico 版本是v3.23
 
-#### 第一种：基于operator安装calico
+##### 第一种：基于operator安装calico
 
-##### 下载operator资源清单文件
+###### 下载operator资源清单文件
 
 如果不能直接应用（网络原因 可以先找个下载下来再使用apply应用）
 
@@ -763,9 +768,9 @@ cidr: 192.168.0.0/16  改为      cidr: 10.244.0.0/16
 kubectl apply -f custom-resources.yaml
 ```
 
-#### 第二种:基于calico.yml安装
+##### 第二种:基于calico.yml安装
 
-##### 下载calico配置文件
+###### 下载calico配置文件
 
 > 这里 也是使用3.23版本
 
@@ -775,7 +780,7 @@ wget  https://docs.projectcalico.org/v3.23/manifests/calico.yaml  --no-check-cer
 
 这里下载不下来就本地下载后传入服务器
 
-##### 修改配置文件
+###### 修改配置文件
 
 ```text
 vi calico.yaml
@@ -798,7 +803,7 @@ vi calico.yaml
 
  重点注意：**这里不能添加时候不能使用tab只能使用空格键当做空格**，不然创建的时候会报错
 
-##### 手动加载镜像（由于网络原因）
+###### 手动加载镜像（由于网络原因）
 
 ```shell
 [root@master01 calicodir]# cat calico.yaml |grep 'image:'
@@ -814,7 +819,7 @@ calico 用的是3.23.5版本
 
 https://github.com/projectcalico/calico/releases/tag/v3.23.5 
 
-##### 修改calico 文件
+###### 修改calico 文件
 
 >  修改镜从阿里云上海地区拉取
 
@@ -824,7 +829,7 @@ cat calico.yaml |grep 'image:'
 sed -i 's#docker.io/##g' calico.yaml
 ```
 
-##### 执行创建calico.yaml创建网络
+###### 执行创建calico.yaml创建网络
 
 ```shell
 kubectl apply -f calico.yaml
@@ -838,34 +843,34 @@ kubectl apply -f calico.yaml
 
 ##### 验证网络情况删除重装相关
 
-##### 停止kubelet服务
+###### 停止kubelet服务
 
 ```shell
 systemctl stop kubelet
 systemctl disable kubelet
 ```
 
-##### 使用 kubeadm 重置
+###### 使用 kubeadm 重置
 
 ```
 kubeadm reset
 ```
 
-##### 卸载相关应用
+###### 卸载相关应用
 
 ```shell
 sudo yum remove -y kubeadm kubectl kubelet kubernetes-cni kube*   
 sudo yum autoremove -y
 ```
 
-##### 配置清理
+###### 配置清理
 
 ```shell
 rm -rf /etc/systemd/system/kubelet.service
 rm -rf /etc/systemd/system/kube*
 ```
 
-##### 手动清理kubernetes
+###### 手动清理kubernetes
 
 ```shell
 sudo rm -rf ~/.kube
@@ -875,3 +880,8 @@ sudo rm -rf /var/lib/kube*
 
 此时删除失败会有占用 可执行 `umount $(df -HT | grep '/var/lib/kubelet/pods' | awk '{print $7}')` 后再清理
 
+##### 子节点（worker01、worker02）加入主节点(master01)
+
+```shell
+kubeadm join 192.168.100.11:6443 --token vcc8xt.lc2t495ujjjf4yr9 --discovery-token-ca-cert-hash sha256:d0f8229aec07486e0f42181ef44069762b57910f1dd8d78edb9b5e64ccf82b9c
+```
