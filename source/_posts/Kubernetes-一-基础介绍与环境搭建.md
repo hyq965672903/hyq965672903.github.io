@@ -885,3 +885,33 @@ sudo rm -rf /var/lib/kube*
 ```shell
 kubeadm join 192.168.100.11:6443 --token vcc8xt.lc2t495ujjjf4yr9 --discovery-token-ca-cert-hash sha256:d0f8229aec07486e0f42181ef44069762b57910f1dd8d78edb9b5e64ccf82b9c
 ```
+
+注意：**子节点也需要通过docker  load -i  xxx.tar 加载calico镜像**
+
+然后删除现有的cali-node 会自动重启
+
+```shell
+[root@master01 ~]# kubectl get pods -A
+NAMESPACE     NAME                                       READY   STATUS    RESTARTS   AGE
+kube-system   calico-kube-controllers-74df58766b-sxtsr   1/1     Running   2          79m
+kube-system   calico-node-llkns                          1/1     Running   2          79m
+kube-system   calico-node-sths7                          1/1     Running   0          8m32s
+kube-system   calico-node-t2mnv                          1/1     Running   0          13s
+kube-system   coredns-545d6fc579-p2f8r                   1/1     Running   2          6h57m
+kube-system   coredns-545d6fc579-wl8dn                   1/1     Running   2          6h57m
+kube-system   etcd-master01                              1/1     Running   6          6h58m
+kube-system   kube-apiserver-master01                    1/1     Running   6          6h58m
+kube-system   kube-controller-manager-master01           1/1     Running   6          6h58m
+kube-system   kube-proxy-87l6q                           1/1     Running   0          28m
+kube-system   kube-proxy-c5r5l                           1/1     Running   5          6h57m
+kube-system   kube-proxy-vb8w9                           1/1     Running   0          29m
+kube-system   kube-scheduler-master01                    1/1     Running   5          6h58m
+
+```
+
+删除命令
+
+```shell
+ kubectl delete pod calico-node-xxx -n kube-system
+```
+
