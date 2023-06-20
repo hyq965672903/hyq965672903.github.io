@@ -880,7 +880,7 @@ sudo rm -rf /var/lib/kube*
 
 此时删除失败会有占用 可执行 `umount $(df -HT | grep '/var/lib/kubelet/pods' | awk '{print $7}')` 后再清理
 
-##### 子节点（worker01、worker02）加入主节点(master01)
+#### 子节点（worker01、worker02）加入主节点(master01)
 
 ```shell
 kubeadm join 192.168.100.11:6443 --token vcc8xt.lc2t495ujjjf4yr9 --discovery-token-ca-cert-hash sha256:d0f8229aec07486e0f42181ef44069762b57910f1dd8d78edb9b5e64ccf82b9c
@@ -928,3 +928,88 @@ kubectl get cs
 kubectl get pods -n kube-system
 ```
 
+#### 部署应用Nginx
+
+> 先部署一个nginx，后续详细学习其中应用 service中的yaml参数含义以及写法
+
+```shell
+#创建一个nginx目录
+mkdir nginx
+cd nginx
+```
+
+```yaml
+# vi nginx.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-test
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+      env: test
+      owner: root
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: nginx
+        env: test
+        owner: root
+    spec:
+      containers:
+        - name: nginx-test
+          image: nginx:1.19.9
+          ports:
+            - containerPort: 80
+```
+
+**执行创建应用**
+
+```shell
+kubectl apply -f nginx.yaml
+```
+
+```shell
+# vi nginx-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-test
+  labels:
+    run: nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    owner: root
+```
+
+**执行创建服务**
+
+```shell
+kubectl apply -f nginx-service.yaml
+```
+
+验证是否创建成功
+
+```shell
+[root@master01 nginx]# kubectl get pods -o wide 
+NAME                          READY   STATUS    RESTARTS   AGE   IP             NODE       NOMINATED NODE   READINESS GATES
+nginx-test-7d95fb4447-52j86   1/1     Running   0          18m   10.244.30.66   worker02   <none>           <none>
+nginx-test-7d95fb4447-zfbgm   1/1     Running   0          18m   10.244.5.2     worker01   <none>           <none>
+```
+
+```shell
+[root@master01 nginx]# kubectl get svc -o wide
+NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE   SELECTOR
+kubernetes   ClusterIP   10.96.0.1     <none>        443/TCP        24h   <none>
+nginx-test   NodePort    10.110.6.84   <none>        80:30518/TCP   18m   owner=rancher
+```
+
+这里对应的**30518**就是系统默认分配的对外暴露端口
+
+访问 http://192.168.100.11:30518/ 出现nginx首页即成功
