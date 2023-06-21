@@ -366,7 +366,7 @@ vi /etc/docker/daemon.json
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
   "registry-mirrors": [
-  	"http://jjwt39jg.mirror.aliyuncs.com",
+  	"https://jjwt39jg.mirror.aliyuncs.com",
   	"https://registry.docker-cn.com",
 	"http://hub-mirror.c.163.com",
 	"https://docker.mirrors.ustc.edu.cn"
@@ -928,7 +928,7 @@ kubectl get cs
 kubectl get pods -n kube-system
 ```
 
-#### 部署应用Nginx
+### 部署应用Nginx
 
 > 先部署一个nginx，后续详细学习其中应用 service中的yaml参数含义以及写法
 
@@ -1013,3 +1013,76 @@ nginx-test   NodePort    10.110.6.84   <none>        80:30518/TCP   18m   owner=
 这里对应的**30518**就是系统默认分配的对外暴露端口
 
 访问 http://192.168.100.11:30518/ 出现nginx首页即成功
+
+### 安装Dashboard控制面板
+
+github地址 https://github.com/kubernetes/dashboard
+
+```shell
+mkdir /root/kube-dashboard
+cd /root/kube-dashboard
+wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.1/aio/deploy/recommended.yaml
+# 修改配置文件将
+spec:
+  ports:
+    - port: 443
+      targetPort: 8443
+#改成
+spec:
+  type: NodePort
+  ports:
+    - port: 443
+      targetPort: 8443
+      nodePort: 30000
+      
+#修改权限将
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubernetes-dashboard
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-dashboard
+    namespace: kubernetes-dashboard
+#改成
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-dashboard
+    namespace: kubernetes-dashboard
+    
+# 其实就是这里   name: kubernetes-dashboard==》     name: cluster-admin
+```
+
+```shell
+kubectl apply -f recommended.yaml
+
+[root@master01 kube-dashboard]# kubectl get namespace
+NAME                   STATUS   AGE
+default                Active   24h
+kube-node-lease        Active   24h
+kube-public            Active   24h
+kube-system            Active   24h
+kubernetes-dashboard   Active   39s
+
+[root@master01 kube-dashboard]# kubectl get pods -n kubernetes-dashboard
+NAME                                        READY   STATUS    RESTARTS   AGE
+dashboard-metrics-scraper-c45b7869d-lj5gd   1/1     Running   1          23m
+kubernetes-dashboard-6bcfd5644-gn7l5        1/1     Running   0          85s
+
+
+[root@master01 kube-dashboard]# ss -anput|grep ":30000"
+tcp    LISTEN     0      128       *:30000                 *:*                   users:(("kube-proxy",pid=27644,fd=13))
+```
+
