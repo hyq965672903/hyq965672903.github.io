@@ -105,7 +105,7 @@ kubectl explain xxx
 
 ## 案例
 
-### 创建namespace
+### 创建Namespace
 
 ```yaml
 apiVersion: v1
@@ -126,5 +126,53 @@ spec:
   - name: nginx
     image: nginx:latest
     imagePullPolicy: IfNotPresent
+```
+
+# 集群命名空间-Namespace
+
+## 概念
+
+* Namespace是对一组资源和对象的抽象集合.
+* 常见的 pod, service, deployment 等都是属于某一个namespace的（默认是 default）
+* 不是所有资源都属于namespace，如nodes, persistent volume，namespace 等资源则不属于任何 namespace
+
+## 查看
+
+```shell
+#获取namespace
+kubectl get namespaces
+#获取一个namespace下面的所有资源
+kubectl get all --namespace=xx
+# eg: kubectl get pod --namespace=kube-system
+
+# 获取某一种类型,这里xx 可以pod等
+kubectl get xx --namespace=yyy
+# eg: kubectl get pod --namespace=kube-system
+```
+
+## 创建
+
+命令行
+
+```shell
+#命令行创建
+kubectl create namespace xxx
+#获取namespace
+kubectl get ns
+```
+
+YAML文件创建
+
+ns.yaml
+
+```yaml
+apiVersion: v1							# api版本号
+kind: Namespace							# 类型为namespace
+metadata:								# 定义namespace的元数据属性
+  name: ns2					    		# 定义name属性为ns2
+```
+
+```shell
+kubectl apply -f ns.yml
 ```
 
