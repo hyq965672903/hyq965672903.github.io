@@ -22,9 +22,9 @@ kubectl -h
 
 ## kubectl命令说明
 
-![image-20230621172951828](E:\git_repo\hyq965672903.github.io\source\_posts\Kubernetes-二-快速使用与核心概念.assets\image-20230621172951828.png)
+![image-20230621172951828](http://file.hyqup.cn/img/image-20230621172951828.png)
 
-![image-20230621173005878](E:\git_repo\hyq965672903.github.io\source\_posts\Kubernetes-二-快速使用与核心概念.assets\image-20230621173005878.png)
+![image-20230621173005878](http://file.hyqup.cn/img/image-20230621173005878.png)
 
 ## kubectl命令补全
 
