@@ -176,3 +176,9 @@ metadata:								# 定义namespace的元数据属性
 kubectl apply -f ns.yml
 ```
 
+# 核心概念概述
+
+- **Pod**:是可以在 Kubernetes 中创建和管理的、最小的可部署的计算单元
+- **Controller**:用于管理和运行Pod的对象，控制器通过监控集群的公共状态，并致力于将当前状态转变为期望的状态
+- **Label**：附着到object上（例如Pod）的键值对。可以在创建object的时候指定，也可以在object创建后随时指定。Labels的值对系统本身并没有什么含义，只是对用户才有意义。
+- **Service**:将运行在一组 Pods上的应用程序公开为网络服务的抽象方法
