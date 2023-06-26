@@ -170,7 +170,183 @@ spec:
     image: nginx:1.15-alpine
 ```
 
-## pod生命周期
+## 生命周期
+
+### pod生命周期
+
+* 有些pod(比如运行httpd服务),正常情况下会一直运行中,但如果手动删除它,此pod会终止
+* 也有些pod(比如执行计算任务)，任务计算完后就会自动终止
+
+上面两种场景中,pod从创建到终止的过程就是pod的生命周期。
+
+#### 容器启动
+
+启动后钩子`post-start`执行后执行做**健康检查**
+
+* 第一个健康检查叫存活状态检查(`liveness probe` )，用来检查主容器**存活状态**的
+
+* 第二个健康检查叫准备就绪检查(`readiness probe`)，用来检查主容器是否**启动就绪**
+
+#### 容器重启策略
+
+*  **Always**：表示容器挂了总是重启，这是默认策略 
+
+*  **OnFailures**：表示容器状态为错误时才重启，也就是容器正常终止时不重启 
+
+*  **Never**：表示容器挂了不予重启 
+
+*  对于Always这种策略，容器只要挂了，就会立即重启，这样是很耗费资源的。所以Always重启策略是这么做的：第一次容器挂了立即重启，如果再挂了就要延时10s重启，第三次挂了就等20s重启...... 依次类推 
+
+### HealthCheck健康检查
+
+当Pod启动时，容器可能会因为某种错误(服务未启动或端口不正确)而无法访问等。
+
+| 方式                         | 说明                                                         |
+| ---------------------------- | ------------------------------------------------------------ |
+| Liveness Probe(存活状态探测) | 指示容器是否正在运行。如果存活态探测失败，则 kubelet 会杀死容器， 并且容器将根据其[重启策略](https://kubernetes.io/zh/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy)决定未来。如果容器不提供存活探针， 则默认状态为 `Success`。 |
+| readiness Probe(就绪型探测)  | 指示容器是否准备好为请求提供服务。如果就绪态探测失败， 端点控制器将从与 Pod 匹配的所有服务的端点列表中删除该 Pod 的 IP 地址。 初始延迟之前的就绪态的状态值默认为 `Failure`。 如果容器不提供就绪态探针，则默认状态为 `Success`。注：检查后不健康，将容器设置为Notready;如果使用service来访问,流量不会转发给此种状态的pod |
+| startup Probe                | 指示容器中的应用是否已经启动。如果提供了启动探针，则所有其他探针都会被 禁用，直到此探针成功为止。如果启动探测失败，`kubelet` 将杀死容器，而容器依其 [重启策略](https://kubernetes.io/zh/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy)进行重启。 如果容器没有提供启动探测，则默认状态为 `Success`。 |
+
+#### Probe探测方式
+
+| 方式    | 说明                                                         |
+| ------- | ------------------------------------------------------------ |
+| Exec    | 执行命令                                                     |
+| HTTPGet | http请求某一个URL路径                                        |
+| TCP     | tcp连接某一个端口                                            |
+| gRPC    | 使用 [gRPC](https://grpc.io/) 执行一个远程过程调用。 目标应该实现 [gRPC健康检查](https://grpc.io/grpc/core/md_doc_health-checking.html)。 如果响应的状态是 "SERVING"，则认为诊断成功。 gRPC 探针是一个 alpha 特性，只有在你启用了 "GRPCContainerProbe" [特性门控](https://kubernetes.io/zh/docs/reference/command-line-tools-reference/feature-gate/)时才能使用。 |
+
+####  liveness-exec案例
+
+1、准备资源清单文件pod-liveness-exec.yml
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-exec
+  namespace: default
+spec:
+  containers:
+  - name: liveness
+    image: busybox
+    imagePullPolicy: IfNotPresent
+    args:
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600
+    livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 5 				# pod启动延迟5秒后探测
+      periodSeconds: 5 						# 每5秒探测1次
+```
+
+2、应用yaml文件
+
+```shell
+kubectl apply -f pod-liveness-exec.yml
+```
+
+#### liveness-httpget案例
+
+1、准备资源清单文件pod-liveness-httpget.yml
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-httpget
+  namespace: default
+spec:
+  containers:
+  - name: liveness
+    image: nginx:1.15-alpine
+    imagePullPolicy: IfNotPresent
+    ports:							    # 指定容器端口，这一段不写也行，端口由镜像决定 
+    - name: http						# 自定义名称，不需要与下面的port: http对应
+      containerPort: 80					# 类似dockerfile里的expose 80
+    livenessProbe:
+      httpGet:                          # 使用httpGet方式
+        port: http                      # http协议,也可以直接写80端口
+        path: /index.html               # 探测家目录下的index.html
+      initialDelaySeconds: 3            # 延迟3秒开始探测
+      periodSeconds: 5                  # 每隔5s钟探测一次
+```
+
+2、应用YAML文件
+
+```shell
+kubectl apply -f pod-liveness-httpget.yml
+```
+
+#### liveness-tcp案例
+
+1、准备资源文件pod-liveness-tcp.yml
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-tcp
+  namespace: default
+spec:
+  containers:
+  - name: liveness
+    image: nginx:1.15-alpine
+    imagePullPolicy: IfNotPresent
+    ports:
+    - name: http
+      containerPort: 80
+    livenessProbe:
+      tcpSocket:                        # 使用tcp连接方式
+        port: 80                        # 连接80端口进行探测
+      initialDelaySeconds: 3
+      periodSeconds: 5
+```
+
+2、应用YAML文件
+
+```shell
+kubectl apply -f pod-liveness-tcp.yml
+```
+
+#### readiness案例
+
+1、准备资源配置文件pod-readiness-httpget.yml
+
+```shell
+[root@k8s-master1 ~]# vim pod-readiness-httpget.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: readiness-httpget
+  namespace: default
+spec:
+  containers:
+  - name: readiness
+    image: nginx:1.15-alpine
+    imagePullPolicy: IfNotPresent
+    ports:
+    - name: http
+      containerPort: 80
+    readinessProbe:                     # 这里由liveness换成了readiness
+      httpGet:
+        port: http
+        path: /index.html
+      initialDelaySeconds: 3
+      periodSeconds: 5
+```
+
+2、应用YAML文件
+
+```shell
+kubectl apply -f pod-readiness-httpget.yml
+```
+
+
 
 ### post-start
 
