@@ -124,3 +124,8 @@ spec:         #必选，Pod中容器的详细定义(期望)
 ```
 
 注：如果不清楚某个参数的写法，可使用 kubectl explain 命令完成
+
+```shell
+kubectl explain pod
+kubectl explain pod.spec
+```
