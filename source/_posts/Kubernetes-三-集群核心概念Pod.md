@@ -346,15 +346,13 @@ spec:
 kubectl apply -f pod-readiness-httpget.yml
 ```
 
-
-
 ### post-start
 
 > 容器启动后执行的命令
 
-```shell
-[root@k8s-master1 ~]# vim pod-poststart.yml
+1、准备资源清单文件pod-poststart.yml
 
+```shell
 apiVersion: v1
 kind: Pod
 metadata:
@@ -371,12 +369,25 @@ spec:
           command: ["mkdir","-p","/usr/share/nginx/html/haha"]
 ```
 
+2、应用资源文件
+
+```shell
+kubectl apply -f pod-poststart.yml
+```
+
+3、查看是否创建成功
+
+```shell
+kubectl exec -it poststart -- ls /usr/share/nginx/html -l
+```
+
 ### pre-stop
 
 > 容器终止前执行的命令
 
+1、准备资源清单文件prestop.yml
+
 ```shell
-[root@k8s-master1 ~]# vim prestop.yml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -391,5 +402,17 @@ spec:
       preStop:                                       # preStop
         exec:
           command: ["/bin/sh","-c","sleep 60000000"]     # 容器终止前sleep 60000000秒
+```
+
+2、应用资源文件
+
+```shell
+kubectl apply -f prestop.yml
+```
+
+3、删除验证
+
+```shell
+kubectl delete -f prestop.yml
 ```
 
