@@ -62,7 +62,7 @@ jobs:
         git commit -m "GitHub Actions Auto Builder at $(date +'%Y-%m-%d %H:%M:%S')"
         echo @${{ secrets.ACCESS_TOKEN }} 
         git push --force --quiet "https://hyq965672903:${{ secrets.ACCESS_TOKEN }}@$GITHUB_REPO" master:master
-        git push --force --quiet "http://hyq965672903:${{ secrets.GITEE_ACCESS_TOKEN }}@$GITEE_REPO" master:master
+      #  git push --force --quiet "http://hyq965672903:${{ secrets.GITEE_ACCESS_TOKEN }}@$GITEE_REPO" master:master
 
     - name: Build Gitee Pages #构建GiteePages
       uses: yanglbme/gitee-pages-action@master
