@@ -129,3 +129,91 @@ spec:         #必选，Pod中容器的详细定义(期望)
 kubectl explain pod
 kubectl explain pod.spec
 ```
+
+## pod调度
+
+> 以使用约束把pod调度到指定的node节点
+
+### 调度约束方法
+
+- nodeName 用于将pod调度到指定的node名称上
+- nodeSelector 用于将pod调度到匹配Label的node上
+
+**第一种**：spec.nodeName 将容器调度到指定节点上
+
+```shell
+[root@k8s-master1 ~]# vim pod-nodename.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-nodename
+spec:
+  nodeName: k8s-worker1                    # 通过nodeName调度到k8s-worker1节点
+  containers:
+  - name: nginx
+    image: nginx:1.15-alpine
+```
+
+**第二种**：spec.nodeSelector nodeSelector节点选择器调度到指定节点上去
+
+```shell
+[root@k8s-master1 ~]# vim pod-nodeselector.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-nodeselect
+spec:
+  nodeSelector:                         # nodeSelector节点选择器
+    bussiness: game                     # 指定调度到标签为bussiness=game的节点
+  containers:
+  - name: nginx
+    image: nginx:1.15-alpine
+```
+
+## pod生命周期
+
+### post-start
+
+> 容器启动后执行的命令
+
+```shell
+[root@k8s-master1 ~]# vim pod-poststart.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: poststart
+  namespace: default
+spec:
+  containers:
+  - name: poststart
+    image: nginx:1.15-alpine
+    imagePullPolicy: IfNotPresent
+    lifecycle:                                       # 生命周期事件
+      postStart:
+        exec:
+          command: ["mkdir","-p","/usr/share/nginx/html/haha"]
+```
+
+### pre-stop
+
+> 容器终止前执行的命令
+
+```shell
+[root@k8s-master1 ~]# vim prestop.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: prestop
+  namespace: default
+spec:
+  containers:
+  - name: prestop
+    image: nginx:1.15-alpine
+    imagePullPolicy: IfNotPresent
+    lifecycle:                                       # 生命周期事件
+      preStop:                                       # preStop
+        exec:
+          command: ["/bin/sh","-c","sleep 60000000"]     # 容器终止前sleep 60000000秒
+```
+
