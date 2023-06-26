@@ -1,8 +1,8 @@
 ---
-title: Kubernetes(四)-集群核心概念Service
+title: Kubernetes(五)-集群核心概念Service
 index_img: /img/default.png
 banner_img: /img/default.png
-date: 2023-06-26 16:38:25
+date: 2023-06-26 22:50:33
 tags:
 categories:
 description:
