@@ -73,7 +73,7 @@ JPA 有三个核心部分：**ORM 映射元数据**、**操作实体对象 API**
 
 ### Mybatis 架构简介
 
-![img](https://file.hyqup.cn/img/webp.webp)
+![img](http://hyqup-blog-upyun.test.upcdn.net/img/webp.webp)
 
 <center>图片来自网络</center>
 
@@ -100,7 +100,7 @@ JPA 有三个核心部分：**ORM 映射元数据**、**操作实体对象 API**
 
 基础支撑层是整个MyBatis框架的地基，负责最基础的功能支撑，共有九大基础工具
 
-![ title=](https://file.hyqup.cn/img/1460000041398816.png)
+![ title=](http://hyqup-blog-upyun.test.upcdn.net/img/1460000041398816.png)
 
 <center>图片来自网络</center>
 

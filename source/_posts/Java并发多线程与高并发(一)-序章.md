@@ -1,7 +1,7 @@
 ---
 title: Java并发多线程与高并发(一)-序章
-index_img: https://file.hyqup.cn/img/792a4b6934fc491b81342206e3192e59.png
-banner_img: https://file.hyqup.cn/img/792a4b6934fc491b81342206e3192e59.png
+index_img: http://hyqup-blog-upyun.test.upcdn.net/img/792a4b6934fc491b81342206e3192e59.png
+banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/792a4b6934fc491b81342206e3192e59.png
 abbrlink: fc3007d7
 date: 2021-04-28 22:01:58
 tags:

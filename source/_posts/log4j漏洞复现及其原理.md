@@ -1,7 +1,7 @@
 ---
 title: log4j漏洞复现及其原理
-index_img: 'https://file.hyqup.cn/img/gamersky_10origin_19_20169281140AB3.jpg'
-banner_img: 'https://file.hyqup.cn/img/13.jpg'
+index_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/gamersky_10origin_19_20169281140AB3.jpg'
+banner_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/13.jpg'
 abbrlink: 51961c7e
 date: 2022-05-07 22:31:13
 tags:
@@ -31,7 +31,7 @@ JDK 11.0.1、8u191、7u201、6u211或者更高版本的JDK情况下可能会失�
 
 我的版本：
 
-![image-20220507231250197](https://file.hyqup.cn/img/image-20220507231250197.png)
+![image-20220507231250197](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220507231250197.png)
 
 2、Apache Log4j 2.x <= 2.14.1
 
@@ -98,7 +98,7 @@ public class AttackService implements ObjectFactory {
 
 将上述文件AttackService.java编译程AttackService.class 放于nginx htm目录下
 
-![image-20220507232159834](https://file.hyqup.cn/img/image-20220507232159834.png)
+![image-20220507232159834](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220507232159834.png)
 
 启动nginx;
 
@@ -229,7 +229,7 @@ public class TrackController {
 
 在当前环境vm 打印出我们放在nginx 里面的伪代码，并且打开了计算器就算浮现成功
 
-![image-20220507233248474](https://file.hyqup.cn/img/image-20220507233248474.png)
+![image-20220507233248474](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220507233248474.png)
 
 ## 解决办法
 

@@ -38,7 +38,7 @@ description:
 
 ## 线程状态
 
-![线程状态流转图](https://file.hyqup.cn/img/1775037-20191112153234240-689002981.png)
+![线程状态流转图](http://hyqup-blog-upyun.test.upcdn.net/img/1775037-20191112153234240-689002981.png)
 
 一个线程从创建到消亡会经历新建状态（New）、就绪状态（Runnable）、运行状态（Running）、等待（Waiting）、阻塞状态（Blocked）和死亡状态
 

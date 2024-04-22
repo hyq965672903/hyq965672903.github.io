@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring(一)-序章
-index_img: 'https://file.hyqup.cn/img/wallhaven-0pgw19.jpg'
-banner_img: 'https://file.hyqup.cn/img/wallhaven-g7gvo3.png'
+index_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-0pgw19.jpg'
+banner_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-g7gvo3.png'
 categories:
   - Java
   - Spring源码
@@ -63,7 +63,7 @@ ps ：要注意当前的idea kotlin 插件版本和当前源码对应的kotlin�
 
 类似于maven 的本地仓库地址 
 
-![image-20220423085321489](https://file.hyqup.cn/img/image-20220423085321489.png)
+![image-20220423085321489](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220423085321489.png)
 
 2、IDEA gradle 配置说明
 
@@ -80,11 +80,11 @@ zipStorePath=wrapper/dists
 
 IDEA需要配置一些东西来保证使用该wrapper 构建 如果不行 **~~请删除 gradle user  home~~**
 
-![image-20220423123042199](https://file.hyqup.cn/img/image-20220423123042199.png)
+![image-20220423123042199](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220423123042199.png)
 
 3、根目录build.gradle 加入阿里云镜像仓库
 
-![image-20220423123220705](https://file.hyqup.cn/img/image-20220423123220705.png)
+![image-20220423123220705](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220423123220705.png)
 
 ```groovy
     maven {
@@ -94,7 +94,7 @@ IDEA需要配置一些东西来保证使用该wrapper 构建 如果不行 **~~�
 
 # Spring框架的整体流程
 
-![Spring架构原理图](https://file.hyqup.cn/img/Spring%E6%9E%B6%E6%9E%84%E5%8E%9F%E7%90%86%E5%9B%BE.jpg)
+![Spring架构原理图](http://hyqup-blog-upyun.test.upcdn.net/img/Spring%E6%9E%B6%E6%9E%84%E5%8E%9F%E7%90%86%E5%9B%BE.jpg)
 
 > 图源自于 雷丰阳-设计模式
 
@@ -134,7 +134,7 @@ IDEA需要配置一些东西来保证使用该wrapper 构建 如果不行 **~~�
 
 
 
-![image-20220423162300061](https://file.hyqup.cn/img/image-20220423162300061.png)
+![image-20220423162300061](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220423162300061.png)
 
 GenericApplicationContext ：
 private final DefaultListableBeanFactory beanFactory; 

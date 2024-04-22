@@ -83,15 +83,15 @@ Java虚拟机分堆区、栈区、方法区
 
 栈帧是一个内存区块，是一个数据集，维系着方法执行过程中的各种数据信息
 
-![image-20220928204912987](https://file.hyqup.cn/img/image-20220928204912987.png)
+![image-20220928204912987](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928204912987.png)
 
 **栈帧的内部结构：**
 
-![image-20220928205653573](https://file.hyqup.cn/img/image-20220928205653573.png)
+![image-20220928205653573](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928205653573.png)
 
 #### 栈的FILO原理
 
-![image-20220928211031108](https://file.hyqup.cn/img/image-20220928211031108.png)
+![image-20220928211031108](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928211031108.png)
 
 JVM直接对Java栈的操作只有两个：
 
@@ -116,7 +116,7 @@ JVM直接对Java栈的操作只有两个：
 
 这些数据类型包括各类基本数据类型、对象引用（reference），以及returnAddress类型
 
-![image-20220928220835279](https://file.hyqup.cn/img/image-20220928220835279.png)
+![image-20220928220835279](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928220835279.png)
 
 注意：
 
@@ -144,21 +144,21 @@ public void testAddOperation(){
 }
 ```
 
-![image-20220928224543209](https://file.hyqup.cn/img/image-20220928224543209.png)
+![image-20220928224543209](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928224543209.png)
 
-![image-20220928224548943](https://file.hyqup.cn/img/image-20220928224548943.png)
+![image-20220928224548943](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928224548943.png)
 
-![image-20220928224554113](https://file.hyqup.cn/img/image-20220928224554113.png)
+![image-20220928224554113](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928224554113.png)
 
-![image-20220928224600714](https://file.hyqup.cn/img/image-20220928224600714.png)
+![image-20220928224600714](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928224600714.png)
 
-![image-20220928224605206](https://file.hyqup.cn/img/image-20220928224605206.png)
+![image-20220928224605206](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928224605206.png)
 
-![image-20220928224610548](https://file.hyqup.cn/img/image-20220928224610548.png)
+![image-20220928224610548](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928224610548.png)
 
-![image-20220928224618969](https://file.hyqup.cn/img/image-20220928224618969.png)
+![image-20220928224618969](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928224618969.png)
 
-![image-20220928224622772](https://file.hyqup.cn/img/image-20220928224622772.png)
+![image-20220928224622772](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220928224622772.png)
 
 #### 动态链接（Dynamic Linking）
 

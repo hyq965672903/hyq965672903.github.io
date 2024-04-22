@@ -462,7 +462,7 @@ footer:
 index:
   # 首页 Banner 头图，可以是相对路径或绝对路径，以下相同
   # Path of Banner image, can be a relative path or an absolute path, the same on other pages
-  banner_img: https://file.hyqup.cn/img/index_banner_img.jpg
+  banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/index_banner_img.jpg
 
   # 头图高度，屏幕百分比
   # Height ratio of banner image
@@ -534,7 +534,7 @@ index:
 # Post Page
 #---------------------------
 post:
-  banner_img: https://file.hyqup.cn/img/post_img.jpg
+  banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/post_img.jpg
   banner_img_height: 70
   banner_mask_alpha: 0.3
 
@@ -888,7 +888,7 @@ giscus:
 # Archive Page
 #---------------------------
 archive:
-  banner_img: https://file.hyqup.cn/img/archive_img.jpg
+  banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/archive_img.jpg
   banner_img_height: 60
   banner_mask_alpha: 0.3
 
@@ -899,7 +899,7 @@ archive:
 #---------------------------
 category:
   enable: true
-  banner_img: https://file.hyqup.cn/img/category_img.jpg
+  banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/category_img.jpg
   banner_img_height: 60
   banner_mask_alpha: 0.3
 
@@ -928,7 +928,7 @@ category:
 #---------------------------
 tag:
   enable: true
-  banner_img: https://file.hyqup.cn/img/tag_img.jpg
+  banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/tag_img.jpg
   banner_img_height: 80
   banner_mask_alpha: 0.3
   tagcloud:
@@ -945,7 +945,7 @@ tag:
 #---------------------------
 about:
   enable: true
-  banner_img: https://file.hyqup.cn/img/about_img.jpg
+  banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/about_img.jpg
   banner_img_height: 60
   banner_mask_alpha: 0.3
   avatar: /img/avatar.png

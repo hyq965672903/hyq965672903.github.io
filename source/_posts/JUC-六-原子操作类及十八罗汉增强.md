@@ -415,7 +415,7 @@ sum()会将所有Cell数组中的value和base累加作为返回值，核心的�
 
 ![image-20220622220924965](JUC-%E5%85%AD-%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB%E5%8F%8A%E5%8D%81%E5%85%AB%E7%BD%97%E6%B1%89%E5%A2%9E%E5%BC%BA.assets/image-20220622220924965.png)
 
-![image-20220622221141680](https://file.hyqup.cn/img/image-20220622221141680.png)
+![image-20220622221141680](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220622221141680.png)
 
 ### 为啥在并发情况下longAdder的sum的值不精确？
 

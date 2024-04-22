@@ -159,7 +159,7 @@ static class Entry extends WeakReference<ThreadLocal<?>> {
 
 在ThreadLocal的生命周期中，都存在这些引用。看下图: 实线代表强引用，虚线代表弱引用
 
-![这里写图片描述](https://file.hyqup.cn/img/SouthEast.jpeg)
+![这里写图片描述](http://hyqup-blog-upyun.test.upcdn.net/img/SouthEast.jpeg)
 
 <center>（图片来自网络）</center>
 

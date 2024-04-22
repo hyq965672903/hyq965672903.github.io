@@ -46,7 +46,7 @@ ClassLoader加载一次。
 
 > 类加载主要过程分为 加载、链接、初始化三个阶段，而链接阶段又分为验证 准备 解析
 
-![image-20220921210744405](https://file.hyqup.cn/img/image-20220921210744405.png)
+![image-20220921210744405](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220921210744405.png)
 
  ClassLoader只负责class文件的加载，至于它是否可以运行，则由Execution Engine决定。
 
@@ -273,7 +273,7 @@ class ChildClassLoader extends ClassLoader {
 
 > 如果一个类加载器在接到加载类的请求时，它**首先不会自己尝试去加载这个类**，而是把**这个请求任务委托给父类加载器去完成，依次递归，**如果父类加载器可以完成类加载任务，就成功返回。**只有父类加载器无法完成此加载任务时，才自己去加载**
 
-![双亲委派模型](https://file.hyqup.cn/img/20210601230727770.png)
+![双亲委派模型](http://hyqup-blog-upyun.test.upcdn.net/img/20210601230727770.png)
 
 #### 双亲委派模型优势
 

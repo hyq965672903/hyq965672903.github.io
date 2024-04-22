@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring(三)-Bean初始化过程引出BeanPostProcessor
-index_img: 'https://file.hyqup.cn/img/wallhaven-01w1o1.jpg'
-banner_img: 'https://file.hyqup.cn/img/wallhaven-01mqk3.jpg'
+index_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-01w1o1.jpg'
+banner_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-01mqk3.jpg'
 categories:
   - Java
   - Spring源码
@@ -64,11 +64,11 @@ public class AnnotationMainTest {
 
 注意断点位置
 
-![image-20220424205139520](https://file.hyqup.cn/img/image-20220424205139520.png)
+![image-20220424205139520](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220424205139520.png)
 
 堆栈追踪分析
 
-![image-20220424205250721](https://file.hyqup.cn/img/image-20220424205250721.png)
+![image-20220424205250721](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220424205250721.png)
 
 ## 堆栈分析
 
@@ -414,7 +414,7 @@ protected <T> T doGetBean(
 
 上面的执行链路来创建bean，instantiateBean 中会得到一个InstantiationStrategy 策略模式来得到一个创建bean的策略这里有两种实现
 
-![image-20220424220927669](https://file.hyqup.cn/img/image-20220424220927669.png)
+![image-20220424220927669](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220424220927669.png)
 
 - jdk 动态反射方式创建：SimpleInstantiationStrategy
 
@@ -552,11 +552,11 @@ private void invokeAwareInterfaces(Object bean) {
 
 后续章节会细细讲解
 
-![image-20220424223748792](https://file.hyqup.cn/img/image-20220424223748792.png)
+![image-20220424223748792](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220424223748792.png)
 
 ## 整体的流程图
 
-![简单了解Bean创建过程.drawio](https://file.hyqup.cn/img/%E7%AE%80%E5%8D%95%E4%BA%86%E8%A7%A3Bean%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B.drawio.png)
+![简单了解Bean创建过程.drawio](http://hyqup-blog-upyun.test.upcdn.net/img/%E7%AE%80%E5%8D%95%E4%BA%86%E8%A7%A3Bean%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B.drawio.png)
 
 ## 后续
 

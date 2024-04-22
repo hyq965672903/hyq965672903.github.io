@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring-(六)-容器刷新的十二大步
-index_img: 'https://file.hyqup.cn/img/wallhaven-mdvrgm.jpg'
-banner_img: 'https://file.hyqup.cn/img/wallhaven-m9orq9.jpg'
+index_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-mdvrgm.jpg'
+banner_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-m9orq9.jpg'
 categories:
   - Java
   - Spring源码
@@ -382,4 +382,4 @@ protected void finishRefresh() {
 
 ## 流程图
 
-![容器刷新的12大步.drawio](https://file.hyqup.cn/img/%E5%AE%B9%E5%99%A8%E5%88%B7%E6%96%B0%E7%9A%8412%E5%A4%A7%E6%AD%A5.drawio.png)
+![容器刷新的12大步.drawio](http://hyqup-blog-upyun.test.upcdn.net/img/%E5%AE%B9%E5%99%A8%E5%88%B7%E6%96%B0%E7%9A%8412%E5%A4%A7%E6%AD%A5.drawio.png)

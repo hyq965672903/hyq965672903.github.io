@@ -17,7 +17,7 @@ description:
 
 ## 了解初始化的时机
 
-![image-20220516212304671](https://file.hyqup.cn/img/image-20220516212304671.png)
+![image-20220516212304671](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220516212304671.png)
 
 初始化web容器的时候initWebApplicationContext，有设置监听器wac.addApplicationListener(new SourceFilteringListener(wac, new ContextRefreshListener()));
 

@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring-(五)-Bean初始化流程
-index_img: 'https://file.hyqup.cn/img/wallhaven-476v8e.jpg'
-banner_img: 'https://file.hyqup.cn/img/wallhaven-83voqy.jpg'
+index_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-476v8e.jpg'
+banner_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-83voqy.jpg'
 categories:
   - Java
   - Spring源码
@@ -23,4 +23,4 @@ spring在刷新容器的12大步骤的第11步的时候 finishBeanFactoryInitial
 
 ## 整体流程分析图
 
-![Bean初始化流程.drawio](https://file.hyqup.cn/img/Bean%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.drawio.png)
+![Bean初始化流程.drawio](http://hyqup-blog-upyun.test.upcdn.net/img/Bean%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B.drawio.png)

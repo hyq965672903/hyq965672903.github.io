@@ -1,7 +1,7 @@
 ---
 title: Java并发多线程与高并发(二)-并发基础
-index_img: https://file.hyqup.cn/img/559ad287880511ebb6edd017c2d2eca2.png
-banner_img: https://file.hyqup.cn/img/d017bd50880411ebb6edd017c2d2eca2.jpg
+index_img: http://hyqup-blog-upyun.test.upcdn.net/img/559ad287880511ebb6edd017c2d2eca2.png
+banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/d017bd50880411ebb6edd017c2d2eca2.jpg
 abbrlink: 81ef5aad
 date: 2021-04-28 23:33:36
 tags:
@@ -56,15 +56,15 @@ cpu乱序执行的时候 可能顺序变为②->①->③
 
 Java内存模型-JMM(Java Memory Model) Java内存模式是一种虚拟机规范，通过这组规范定义了程序中各个变量（包括实例字段，静态字段和构成数组对象的元素）的访问方式
 
-![java-memory-model-2](https://file.hyqup.cn/img/java-memory-model-2-1620570065967.png)
+![java-memory-model-2](http://hyqup-blog-upyun.test.upcdn.net/img/java-memory-model-2-1620570065967.png)
 
 cpu缓存模型结构图
 
-![6](https://file.hyqup.cn/img/6.jpg)
+![6](http://hyqup-blog-upyun.test.upcdn.net/img/6.jpg)
 
 Java内存模型抽象结构图
 
-![8](https://file.hyqup.cn/img/8.jpg)
+![8](http://hyqup-blog-upyun.test.upcdn.net/img/8.jpg)
 
 
 

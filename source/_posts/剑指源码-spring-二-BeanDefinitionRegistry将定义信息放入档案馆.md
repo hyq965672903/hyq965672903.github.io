@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring(二)-BeanDefinitionRegistry将定义信息放入档案馆
-index_img: 'https://file.hyqup.cn/img/wallhaven-0wd21x.jpg'
-banner_img: 'https://file.hyqup.cn/img/wallhaven-0qoeoq.jpg'
+index_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-0wd21x.jpg'
+banner_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-0qoeoq.jpg'
 categories:
   - Java
   - Spring源码
@@ -31,11 +31,11 @@ public class MainTest {
 
 debug上述代码，断点位置
 
-![image-20220423214653923](https://file.hyqup.cn/img/image-20220423214653923.png)
+![image-20220423214653923](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220423214653923.png)
 
 debug 堆栈分析
 
-![image-20220423214824604](https://file.hyqup.cn/img/image-20220423214824604.png)
+![image-20220423214824604](http://hyqup-blog-upyun.test.upcdn.net/img/image-20220423214824604.png)
 
 ## 核心堆栈代码分析
 
@@ -264,4 +264,4 @@ public void registerBeanDefinition(String beanName, BeanDefinition beanDefinitio
 
 ## 分析流程图
 
-![BeanDefinition流程.drawio](https://file.hyqup.cn/img/BeanDefinition%E6%B5%81%E7%A8%8B.drawio.png)
+![BeanDefinition流程.drawio](http://hyqup-blog-upyun.test.upcdn.net/img/BeanDefinition%E6%B5%81%E7%A8%8B.drawio.png)

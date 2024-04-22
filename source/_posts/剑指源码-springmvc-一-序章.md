@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-springmvc-(一)-序章
-index_img: https://file.hyqup.cn/img/wallhaven-nkorgd.jpg
-banner_img: https://file.hyqup.cn/img/wallhaven-mdvo58.jpg
+index_img: http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-nkorgd.jpg
+banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-mdvo58.jpg
 abbrlink: 9857fe7d
 date: 2022-05-15 17:55:00
 tags:

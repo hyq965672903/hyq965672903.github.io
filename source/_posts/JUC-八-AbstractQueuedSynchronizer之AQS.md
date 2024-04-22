@@ -19,7 +19,7 @@ description:
 
 > 是用来构建锁或者其它同步器组件的重量级基础框架及整个JUC体系的基石，通过内置的FIFO队列来完成资源获取线程的排队工作，并通过一个int类变量表示持有锁的状态
 
-![image.png](https://file.hyqup.cn/img/171d2d42c77b2765tplv-t2oaga2asx-image.image)
+![image.png](http://hyqup-blog-upyun.test.upcdn.net/img/171d2d42c77b2765tplv-t2oaga2asx-image.image)
 
 <center>图片来自网络</center>
 

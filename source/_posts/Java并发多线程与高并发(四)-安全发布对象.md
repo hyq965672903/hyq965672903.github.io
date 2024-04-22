@@ -1,7 +1,7 @@
 ---
 title: Java并发多线程与高并发(四)-安全发布对象
-index_img: https://file.hyqup.cn/img/eb8bb9bc5bfd4b54ad376cd8c3fedc3f.jpg
-banner_img: https://file.hyqup.cn/img/eb8bb9bc5bfd4b54ad376cd8c3fedc3f.jpg
+index_img: http://hyqup-blog-upyun.test.upcdn.net/img/eb8bb9bc5bfd4b54ad376cd8c3fedc3f.jpg
+banner_img: http://hyqup-blog-upyun.test.upcdn.net/img/eb8bb9bc5bfd4b54ad376cd8c3fedc3f.jpg
 abbrlink: 5839849d
 date: 2021-04-28 23:40:36
 tags:

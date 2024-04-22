@@ -1,7 +1,7 @@
 ---
 title: 剑指源码-spring(四)-后置处理器干预生命周期
-index_img: 'https://file.hyqup.cn/img/wallhaven-57z3r1.jpg'
-banner_img: 'https://file.hyqup.cn/img/wallhaven-4yee5x.jpg'
+index_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-57z3r1.jpg'
+banner_img: 'http://hyqup-blog-upyun.test.upcdn.net/img/wallhaven-4yee5x.jpg'
 categories:
   - Java
   - Spring源码
@@ -629,7 +629,7 @@ bean 完成之后会执行InitializingBean.afterPropertiesSet
 
 ## 整个生命周期流程后置处理器干扰图
 
-![](https://file.hyqup.cn/img/%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%A2%9E%E5%BC%BA%E5%99%A8.drawio.png)
+![](http://hyqup-blog-upyun.test.upcdn.net/img/%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%A2%9E%E5%BC%BA%E5%99%A8.drawio.png)
 
 
 
