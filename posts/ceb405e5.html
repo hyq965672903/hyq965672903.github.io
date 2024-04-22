@@ -1,0 +1,842 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="灼华">
+  <meta name="keywords" content="Java,Vue,Android,摄影">
+  
+    <meta name="description" content="debezium+kafka实现oracle的数据同步方案，类似与canal，但功能更为强大，支持的数据库类型更多">
+<meta property="og:type" content="article">
+<meta property="og:title" content="debezium+kafka实现oracle的数据同步方案">
+<meta property="og:url" content="https://hyq965672903.gitee.io/posts/ceb405e5.html">
+<meta property="og:site_name" content="灼华碎碎语">
+<meta property="og:description" content="debezium+kafka实现oracle的数据同步方案，类似与canal，但功能更为强大，支持的数据库类型更多">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hyq965672903.gitee.io/img/default.png">
+<meta property="article:published_time" content="2024-03-14T10:09:15.000Z">
+<meta property="article:modified_time" content="2024-04-22T07:21:14.891Z">
+<meta property="article:author" content="灼华">
+<meta property="article:tag" content="debezium">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hyq965672903.gitee.io/img/default.png">
+  
+  
+  
+  <title>debezium+kafka实现oracle的数据同步方案 - 灼华碎碎语</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"hyq965672903.gitee.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>灼华碎碎语</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="debezium+kafka实现oracle的数据同步方案"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        灼华
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-14 18:09" pubdate>
+          2024年3月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          42 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">debezium+kafka实现oracle的数据同步方案</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年4月22日 下午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>debezium+kafka实现oracle的数据同步方案，类似与canal，但功能更为强大，支持的数据库类型更多</p>
+<span id="more"></span>
+
+<p>debezium最新稳定版本为2.5，当前文档采用的使用2.4版本</p>
+<h2 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h2><blockquote>
+<p>说明： 方式一都是采用kafaka中配置 debezium-connector-oracle 插件然后启动插件方式,然后oracle连接器的，放在kafka的config目录中（connect-distributed.properties），这样启动好kafka 直接就配置好oracle连接器</p>
+<p>方式二：采用的zookeeper+kafaka+connector 安装三个中间件，然后以restful方式请求创建oracle连接器</p>
+<p>优缺点：方式一启动好久配置好参数，方式二以HTTP+JSON参数配置连接器，更为灵活</p>
+</blockquote>
+<p>方式一：</p>
+<ul>
+<li>oracle 开启日志记录<br>查询是否开启 select name,log_mode from v$database;<br>开启 ALTER DATABASE ARCHIVELOG;<br>补全日志 ALTER DATABASE ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS</li>
+<li>下载debezium-connector-oracle-2.5.2.Final-plugin 插件 </li>
+<li>配置kafka 中debezium插件地址</li>
+<li>配置kafka中 <strong>connect-distributed.properties</strong>配置参数  包括oracle连接信息等<br>配置参数参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Marydon20170307/p/17944940">https://www.cnblogs.com/Marydon20170307/p/17944940</a></li>
+<li>先后启动zookeeper kafka</li>
+<li>我们的java springboot应用监听kafka消息，做数据入库</li>
+</ul>
+<p>方式二：</p>
+<ul>
+<li><p>oracle 开启日志记录<br>查询是否开启 select name,log_mode from v$database;<br>开启 ALTER DATABASE ARCHIVELOG;<br>补全日志 ALTER DATABASE ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS</p>
+</li>
+<li><p>先后启动<strong>zookeeper</strong>、<strong>kafka</strong>、<strong>kafka connect</strong>中间件</p>
+</li>
+<li><p>最后以HTTP形式完成配置</p>
+<p>配置参数参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Marydon20170307/p/17944940">https://www.cnblogs.com/Marydon20170307/p/17944940</a></p>
+</li>
+<li><p>我们的java springboot应用监听kafka消息，做数据入库</p>
+</li>
+</ul>
+<h2 id="安装组件（下面方式二选一）"><a href="#安装组件（下面方式二选一）" class="headerlink" title="安装组件（下面方式二选一）"></a>安装组件（下面方式二选一）</h2><h3 id="采用docker安装（当前测试环境的安装方式）"><a href="#采用docker安装（当前测试环境的安装方式）" class="headerlink" title="采用docker安装（当前测试环境的安装方式）"></a>采用docker安装（当前测试环境的安装方式）</h3><p><strong>zookeeper</strong>中间件</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span>  <span class="token parameter variable">--name</span> zookeeper <span class="token parameter variable">-p</span> <span class="token number">2181</span>:2181 <span class="token parameter variable">-p</span> <span class="token number">9011</span>:9011 debezium/zookeeper:2.4 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p><strong>kafka</strong>中间件</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">--name</span> kafka <span class="token parameter variable">-p</span> <span class="token number">9092</span>:9092 <span class="token parameter variable">--link</span> zookeeper:zookeeper debezium/kafka:2.4<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p> <strong>Kafka Connect</strong>中间件</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">--name</span> connect <span class="token parameter variable">-p</span> <span class="token number">8083</span>:8083  <span class="token parameter variable">-e</span> <span class="token assign-left variable">GROUP_ID</span><span class="token operator">=</span><span class="token number">1</span> <span class="token parameter variable">-e</span> <span class="token assign-left variable">CONFIG_STORAGE_TOPIC</span><span class="token operator">=</span>my_connect_configs <span class="token parameter variable">-e</span> <span class="token assign-left variable">OFFSET_STORAGE_TOPIC</span><span class="token operator">=</span>my_connect_offsets <span class="token parameter variable">-e</span> <span class="token assign-left variable">STATUS_STORAGE_TOPIC</span><span class="token operator">=</span>my_connect_statuses  <span class="token parameter variable">-e</span> <span class="token assign-left variable">CONNECT_MAX_REQUEST_SIZE</span><span class="token operator">=</span><span class="token number">20000000</span>  <span class="token parameter variable">-e</span> <span class="token assign-left variable">CONNECT_BUFFER_MEMORY</span><span class="token operator">=</span><span class="token number">800000000</span>    <span class="token parameter variable">-e</span> <span class="token assign-left variable">CONNECT_FETCH_MAX_BYTES</span><span class="token operator">=</span><span class="token number">20000000</span>  <span class="token parameter variable">-e</span> <span class="token assign-left variable">CONNECT_MAX_PARTITION_FETCH_BYTES</span><span class="token operator">=</span><span class="token number">20000000</span> <span class="token parameter variable">-e</span> <span class="token assign-left variable">OFFSET_FLUSH_INTERVAL_MS</span><span class="token operator">=</span><span class="token number">10000</span>  <span class="token parameter variable">-e</span> <span class="token assign-left variable">OFFSET_FLUSH_TIMEOUT_MS</span><span class="token operator">=</span><span class="token number">6000000</span> <span class="token parameter variable">-e</span> <span class="token assign-left variable">CONNECT_CONNECTIONS_MAX_IDLE_MS</span><span class="token operator">=</span><span class="token number">6000000</span> <span class="token parameter variable">-e</span>  <span class="token assign-left variable">CONNECT_RECEIVE.BUFFER.BYTES</span><span class="token operator">=</span><span class="token number">500000000</span> <span class="token parameter variable">-e</span> <span class="token assign-left variable">CONNECT_PRODUCER_MAX_REQUEST_SIZE</span><span class="token operator">=</span><span class="token number">20000000</span>  <span class="token parameter variable">--link</span> zookeeper:zookeeper <span class="token parameter variable">--link</span> kafka:kafka debezium/connect:2.4<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p>oracle驱动拷贝到connect的目录下</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> <span class="token function">cp</span> ojdbc8.jar 容器ID:/kafka/libs 
+<span class="token comment"># 重启connect </span>
+<span class="token function">docker</span> restart connect容器ID<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h3 id="采用docker-compose安装"><a href="#采用docker-compose安装" class="headerlink" title="采用docker-compose安装"></a>采用docker-compose安装</h3><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">version: <span class="token string">'3.7'</span>
+
+services:
+  zookeeper:
+    image: debezium/zookeeper:2.4
+    container_name: zookeeper
+    ports:
+      - <span class="token string">"2181:2181"</span>
+      - <span class="token string">"9011:9011"</span>
+
+  kafka:
+    image: debezium/kafka:2.4
+    container_name: kafka
+    ports:
+      - <span class="token string">"9092:9092"</span>
+    environment:
+      ZOOKEEPER_CONNECT: zookeeper:2181
+
+  connect:
+    image: debezium/connect:2.4
+    container_name: connect
+    ports:
+      - <span class="token string">"8083:8083"</span>
+    environment:
+      GROUP_ID: <span class="token number">1</span>
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
+      CONNECT_MAX_REQUEST_SIZE: <span class="token number">20000000</span>
+      CONNECT_BUFFER_MEMORY: <span class="token number">800000000</span>
+      CONNECT_FETCH_MAX_BYTES: <span class="token number">20000000</span>
+      CONNECT_MAX_PARTITION_FETCH_BYTES: <span class="token number">20000000</span>
+      OFFSET_FLUSH_INTERVAL_MS: <span class="token number">10000</span>
+      OFFSET_FLUSH_TIMEOUT_MS: <span class="token number">6000000</span>
+      CONNECT_CONNECTIONS_MAX_IDLE_MS: <span class="token number">6000000</span>
+      CONNECT_RECEIVE_BUFFER_BYTES: <span class="token number">500000000</span>
+      CONNECT_PRODUCER_MAX_REQUEST_SIZE: <span class="token number">20000000</span>
+    links:
+      - <span class="token string">"zookeeper:zookeeper"</span>
+      - <span class="token string">"kafka:kafka"</span>
+    volumes:
+      - ./connect/ojdbc8.jar:/kafka/libs/ojdbc8.jar<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h2 id="Oracle连接器配置"><a href="#Oracle连接器配置" class="headerlink" title="Oracle连接器配置"></a>Oracle连接器配置</h2><blockquote>
+<p>我们这里采用以HTTP形式配置连接器，主要操作的就是对kafka-connect这个中间件操作</p>
+</blockquote>
+<p>首先拿到connect连接器能够使用的暴露出来的ip+端口。公网也好内网也行，内网127.0.0.1为例</p>
+<p>可以使用api工具 如apifox、postman</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment">#查看所有的connector进程</span>
+GET http://127.0.0.1:8083/connectors
+
+<span class="token comment">#新建connector连接器配置(需要携带配置器json参数)</span>
+POST http://127.0.0.1:8083/connectors
+
+<span class="token comment">#删除connector连接器,&#123;name&#125;是新建时候name名字</span>
+DELETE http://127.0.0.1:8083/connectors/<span class="token punctuation">&#123;</span>name<span class="token punctuation">&#125;</span>
+
+<span class="token comment">#查看connector连接器状态,&#123;name&#125;是新建时候name名字</span>
+GET http://127.0.0.1:8083/connectors/<span class="token punctuation">&#123;</span>name<span class="token punctuation">&#125;</span>/status
+
+<span class="token comment">#目前没有从官网找到更新的接口，目前都是先删除再新增的方式实现修改连接器配置</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h4 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h4><blockquote>
+<p>官方文档地址：<a target="_blank" rel="noopener" href="https://debezium.io/documentation/reference/2.4/connectors/oracle.html">https://debezium.io/documentation/reference/2.4/connectors/oracle.html</a></p>
+</blockquote>
+<p>结构如下：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+    <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"debezium-oracle"</span><span class="token punctuation">,</span>  
+    <span class="token property">"config"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+        <span class="token property">"connector.class"</span> <span class="token operator">:</span> <span class="token string">"io.debezium.connector.oracle.OracleConnector"</span><span class="token punctuation">,</span>
+        <span class="token property">"tasks.max"</span> <span class="token operator">:</span> <span class="token string">"1"</span><span class="token punctuation">,</span>
+         <span class="token property">"topic.prefix"</span> <span class="token operator">:</span> <span class="token string">"test"</span><span class="token punctuation">,</span> 
+        	   <span class="token property">"database.url"</span><span class="token operator">:</span> <span class="token string">"jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(LOAD_BALANCE=OFF)(FAILOVER=ON)(ADDRESS=(PROTOCOL=TCP)(HOST=&lt;oracle ip 1>)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=&lt;oracle ip 2>)(PORT=1521)))(CONNECT_DATA=SERVICE_NAME=)(SERVER=DEDICATED)))"</span><span class="token punctuation">,</span>
+        <span class="token property">"database.user"</span> <span class="token operator">:</span> <span class="token string">"inventory"</span><span class="token punctuation">,</span>
+        <span class="token property">"database.password"</span> <span class="token operator">:</span> <span class="token string">"123456"</span><span class="token punctuation">,</span>
+        <span class="token property">"database.dbname"</span> <span class="token operator">:</span> <span class="token string">"xe"</span><span class="token punctuation">,</span>
+        <span class="token property">"schema.history.internal.kafka.bootstrap.servers"</span> <span class="token operator">:</span> <span class="token string">"10.168.1.163:9092"</span><span class="token punctuation">,</span>
+        <span class="token property">"schema.history.internal.kafka.topic"</span><span class="token operator">:</span> <span class="token string">"schema-changes.inventory"</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>列举一些核心比较重要的参数</p>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>name属性</td>
+<td>连接器名称，随意但必须唯一</td>
+</tr>
+<tr>
+<td>database.xxx</td>
+<td>数据库连接参数，见名知意，不多解释</td>
+</tr>
+<tr>
+<td>topic.prefix</td>
+<td>kafaka的topic前缀，重要，后续采集的数据推送到kafaka的时候，topic的命名就是**<u>prefix前缀+库名+表名</u>**，非常重要，java程序中监听此topic做后续业务</td>
+</tr>
+<tr>
+<td>table.include.list</td>
+<td>要捕获的变更记录的表，多个逗号分割 格式是<strong>库名.表名</strong></td>
+</tr>
+<tr>
+<td>log.mining.strategy</td>
+<td>redo_log_catalog(默认) 归档日志，<br />redolog写满才会生成归档日志，导致topic接收数据慢（DDL+DML<br />online_catalog 在线日志，即时读取日志（不包含DDL，只包含DML）</td>
+</tr>
+<tr>
+<td>skipped.operations</td>
+<td>默认值：t。不需要监控的操作，可选值：c(insert&#x2F;create）,u（update）,d （delete）,t (truncate）,none。</td>
+</tr>
+<tr>
+<td>snapshot.mode</td>
+<td>认值: initial, 可选值: [initial,initial_onlywhen_needed,never,schema_onlyschema_only_recovery] <br />initial(默认）（初始全量，后续增量）：连接器执行数据库的初始一致性快照，快照完成后，连接器开始为后续数据库更改流式传输事件记录。<br />initia_only（只全量，不增量）：连接器只执行数据库的初始一致性快照，不允许捕获任何后续更改的事件。<br />schema_only（只增量，不全量）：连接器只捕获所有相关表的表结构，不捕获初始数据，但是会同步后续数据库的更改记录。</td>
+</tr>
+<tr>
+<td>decimal.handlling.mode</td>
+<td>默认值: precise，可选值: [precise,double,string]  <br />说明：<br />如果你使用的不是debezium-connector-jdbc插件来接收数据，需将值设为：string，只有这样才能解决number类型被转成base64码的问题。<br />示例 <br />当decimal.handling.mode属性值为precise时：”ZS_ID”:(“scale”:0,”value”:”Aw&#x3D;&#x3D;};<br />当decimal.handling.mode属性值为string时：”ZS_ID”:”3”。</td>
+</tr>
+</tbody></table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/debezium/">#debezium</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>debezium+kafka实现oracle的数据同步方案</div>
+      <div>https://hyq965672903.gitee.io/posts/ceb405e5.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>灼华</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/eb105f9f.html" title="Netty进阶之路(一)-BIO&amp;NIO">
+                        <span class="hidden-mobile">Netty进阶之路(一)-BIO&amp;NIO</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <br> <a href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral" target="_blank" rel="nofollow noopener"><span>本网站由<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" srcset="/img/loading.gif" lazyload data-original="/img/hexo_final/upyun_logo2.png" style="width:50px"></img>提供CDN加速/云存储服务</span></a>
+
+    </div>
+  
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      蜀ICP备2020032290号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"https://cdn.jsdelivr.net/gh/hyq965672903/hyq965672903.github.io/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true,"scale":0.5},"react":{"opacity":0.7},"dialog":{"enable":true,"hitokoto":true},"log":false});</script>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script></body>
+</html>

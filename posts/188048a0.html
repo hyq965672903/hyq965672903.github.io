@@ -1,0 +1,1515 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="灼华">
+  <meta name="keywords" content="Java,Vue,Android,摄影">
+  
+    <meta name="description" content="Kubernetes 介绍、主要功能、本地虚拟机环境搭建、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes(一)-基础介绍与环境搭建">
+<meta property="og:url" content="https://hyq965672903.gitee.io/posts/188048a0.html">
+<meta property="og:site_name" content="灼华碎碎语">
+<meta property="og:description" content="Kubernetes 介绍、主要功能、本地虚拟机环境搭建、">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hyq965672903.gitee.io/img/default.png">
+<meta property="article:published_time" content="2023-06-12T12:38:33.000Z">
+<meta property="article:modified_time" content="2024-04-22T07:21:14.887Z">
+<meta property="article:author" content="灼华">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://hyq965672903.gitee.io/img/default.png">
+  
+  
+  
+  <title>Kubernetes(一)-基础介绍与环境搭建 - 灼华碎碎语</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"hyq965672903.gitee.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>灼华碎碎语</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Kubernetes(一)-基础介绍与环境搭建"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        灼华
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-12 20:38" pubdate>
+          2023年6月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          21k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          172 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Kubernetes(一)-基础介绍与环境搭建</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年4月22日 下午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Kubernetes 介绍、主要功能、本地虚拟机环境搭建、</p>
+<span id="more"></span>
+
+<h2 id="Kubernetes介绍"><a href="#Kubernetes介绍" class="headerlink" title="Kubernetes介绍"></a>Kubernetes介绍</h2><blockquote>
+<p>希腊语：舵手、飞行员</p>
+</blockquote>
+<ul>
+<li><p>Kubernetes是一个全新的基于容器技术的分布式架构领先方案, 它是Google在2014年6月开源的一个容器集群管理系统，使用Go语言开发，Kubernetes也叫K8S。K8S是Google内部一个叫Borg的容器集群管理系统衍生出来的，Borg已经在Google大规模生产运行十年之久。K8S主要用于自动化部署、扩展和管理容器应用，提供了资源调度、部署管理、服务发现、扩容缩容、监控等一整套功能。2015年7月，Kubernetes v1.0正式发布。</p>
+</li>
+<li><p>Kubernetes作为一个容器集群管理系统，用于管理容器云平台中多个主机上的容器应用，Kubernetes的目标是让部署容器化的应用变得简单且高效，所以 Kubernetes 提供了应用部署，规划，更新，维护的一整套完整的机制。</p>
+</li>
+<li><p>除了Docker容器之外，Kubernetes还支持其他多种容器，如 Containerd、rkt、CoreOS 等</p>
+</li>
+</ul>
+<h2 id="认识Kubernetes"><a href="#认识Kubernetes" class="headerlink" title="认识Kubernetes"></a>认识Kubernetes</h2><h3 id="起源"><a href="#起源" class="headerlink" title="起源"></a>起源</h3><ul>
+<li><p>源自于谷歌Borg</p>
+</li>
+<li><p>使用golang语言开发</p>
+</li>
+<li><p>简称为k8s</p>
+</li>
+</ul>
+<h3 id="归属"><a href="#归属" class="headerlink" title="归属"></a>归属</h3><p>现归属于CNCF</p>
+<ul>
+<li><p>云原生(CloudNative)计算基金会</p>
+</li>
+<li><p>是一个开源软件基金会，致力于使云计算普遍性和持续性</p>
+</li>
+<li><p>官方：<a target="_blank" rel="noopener" href="http://www.cncf.io/">http://www.cncf.io</a></p>
+</li>
+</ul>
+<h3 id="kubernetes版本"><a href="#kubernetes版本" class="headerlink" title="kubernetes版本"></a>kubernetes版本</h3><ul>
+<li>2014年9月第一个正式版本</li>
+<li>2015年7月1.0版本正式发布</li>
+<li>现在最新版本为1.27</li>
+<li>主要贡献者：Google,Redhat,Microsoft,IBM,Intel</li>
+<li>代码托管github:<a target="_blank" rel="noopener" href="https://github.com/kubernetes/">https://github.com/kubernetes/</a></li>
+</ul>
+<h3 id="架构说明"><a href="#架构说明" class="headerlink" title="架构说明"></a>架构说明</h3><ul>
+<li>Master Node<ul>
+<li>中心节点</li>
+<li>manager</li>
+<li>简单叫法<ul>
+<li>master节点</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Minion Node<ul>
+<li>工作节点</li>
+<li>worker</li>
+<li>简单叫点<ul>
+<li>node节点</li>
+<li>worker节点</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="节点组件"><a href="#节点组件" class="headerlink" title="节点组件"></a>节点组件</h3><h4 id="Master节点组件"><a href="#Master节点组件" class="headerlink" title="Master节点组件"></a>Master节点组件</h4><p>master节点是集群管理中心，它的组件可以在集群内任意节点运行，但是为了方便管理所以会在一台主机上运行Master所有组件，<strong>并且不在此主机上运行用户容器</strong></p>
+<p>Master组件包括：</p>
+<ul>
+<li><code>kube-apiserver</code></li>
+</ul>
+<p>​      用于暴露kubernetes API，任何的资源请求&#x2F;调用操作都是通过kube-apiserver提供的接口进行。</p>
+<ul>
+<li><code>kube-controller-manager</code></li>
+</ul>
+<p>​      控制器管理器，用于对控制器进行管理，它们是集群中处理常规任务的后台线程。</p>
+<ul>
+<li><p><code>kube-scheduler</code></p>
+<p>监视新创建没有分配到Node的Pod，为Pod选择一个Node运行。</p>
+</li>
+<li><p><code>ETCD</code></p>
+<p>是kubernetes提供默认的存储系统，保存所有集群数据。</p>
+</li>
+</ul>
+<h4 id="Node节点组件"><a href="#Node节点组件" class="headerlink" title="Node节点组件"></a>Node节点组件</h4><p>node节点用于运行以及维护Pod, 管理volume(CVI)和网络(CNI)，维护pod及service等信息</p>
+<p>Node组件包括：</p>
+<ul>
+<li><code>kubelet</code> <ul>
+<li>负责维护容器的生命周期(创建pod，销毁pod)，同时也负责Volume(CVI)和网络(CNI)的管理</li>
+</ul>
+</li>
+<li><code>kube-proxy</code> <ul>
+<li>通过在主机上维护网络规则并执行连接转发来实现service(iptables&#x2F;ipvs)</li>
+<li>随时与apiserver通信，把Service或Pod改变提交给apiserver，保存至etcd（可做高可用集群）中，负责service实现，从内部pod至service和从外部node到service访问。</li>
+</ul>
+</li>
+<li><code>Container Runtime</code><ul>
+<li>容器运行时(Container Runtime)</li>
+<li>负责镜像管理以及Pod和容器的真正运行</li>
+<li>支持docker&#x2F;containerd&#x2F;Rkt&#x2F;Pouch&#x2F;Kata等多种运行时</li>
+</ul>
+</li>
+</ul>
+<h2 id="Kubernetes环境搭建"><a href="#Kubernetes环境搭建" class="headerlink" title="Kubernetes环境搭建"></a>Kubernetes环境搭建</h2><blockquote>
+<p>使用kubeadm本地化部署目前最新版本kubernetes版本1.27，其他部署方式也可以使用<code>kubeasz</code>、<code>kubekey</code> 等方式部署</p>
+</blockquote>
+<h3 id="Linux环境准备"><a href="#Linux环境准备" class="headerlink" title="Linux环境准备"></a>Linux环境准备</h3><h4 id="主机系统说明"><a href="#主机系统说明" class="headerlink" title="主机系统说明"></a>主机系统说明</h4><p>使用VMware来搭建虚拟机， aliyun镜像库 <a target="_blank" rel="noopener" href="https://developer.aliyun.com/mirror/">https://developer.aliyun.com/mirror/</a></p>
+<p>centos7下载链接：<a target="_blank" rel="noopener" href="https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2207-02.iso">https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2207-02.iso</a></p>
+<h4 id="虚拟机IP配置"><a href="#虚拟机IP配置" class="headerlink" title="虚拟机IP配置"></a>虚拟机IP配置</h4><p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/mayhot/p/15964506.html">https://www.cnblogs.com/mayhot/p/15964506.html</a></p>
+<p>修改ip的方式</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># cd到网络配置文件路径</span>
+<span class="token builtin class-name">cd</span> /etc/sysconfig/network-scripts/
+<span class="token comment"># 编辑ifcfg-en33</span>
+<span class="token function">vi</span> ifcfg-en33
+<span class="token comment"># 重启网卡</span>
+systemctl restart network
+<span class="token comment"># 查看ip</span>
+<span class="token function">ip</span> addr<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">TYPE</span><span class="token operator">=</span>Ethernet
+<span class="token assign-left variable">PROXY_METHOD</span><span class="token operator">=</span>none
+<span class="token assign-left variable">BROWSER_ONLY</span><span class="token operator">=</span>no
+<span class="token assign-left variable">BOOTPROTO</span><span class="token operator">=</span>static
+<span class="token assign-left variable">DEFROUTE</span><span class="token operator">=</span>yes
+<span class="token assign-left variable">IPV4_FAILURE_FATAL</span><span class="token operator">=</span>no
+<span class="token assign-left variable">IPV6INIT</span><span class="token operator">=</span>yes
+<span class="token assign-left variable">IPV6_AUTOCONF</span><span class="token operator">=</span>yes
+<span class="token assign-left variable">IPV6_DEFROUTE</span><span class="token operator">=</span>yes
+<span class="token assign-left variable">IPV6_FAILURE_FATAL</span><span class="token operator">=</span>no
+<span class="token assign-left variable">IPV6_ADDR_GEN_MODE</span><span class="token operator">=</span>stable-privacy
+<span class="token assign-left variable">NAME</span><span class="token operator">=</span>ens33
+<span class="token assign-left variable">UUID</span><span class="token operator">=</span>56d45dc8-a17d-4eca-852c-97167c783f01
+<span class="token assign-left variable">DEVICE</span><span class="token operator">=</span>ens33
+<span class="token assign-left variable">ONBOOT</span><span class="token operator">=</span>yes
+<span class="token assign-left variable">IPADDR</span><span class="token operator">=</span><span class="token number">192.168</span>.100.11
+<span class="token assign-left variable">NETMASK</span><span class="token operator">=</span><span class="token number">255.255</span>.255.0
+<span class="token assign-left variable">GATEWAY</span><span class="token operator">=</span><span class="token number">192.168</span>.100.2
+<span class="token assign-left variable">DNS1</span><span class="token operator">=</span><span class="token number">192.168</span>.100.2
+<span class="token assign-left variable">DNS2</span><span class="token operator">=</span><span class="token number">114.114</span>.114.114
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>改动如下 <code>IPADDR</code>自己分配 、<code>GATEWAY</code> 查看虚拟机的网络<code>NAT</code>网络配置</p>
+<blockquote>
+<p><code>BOOTPROTO=static</code>   </p>
+<p><code>ONBOOT=yes</code><br><code>IPADDR=192.168.100.11</code><br><code>NETMASK=255.255.255.0</code><br><code>GATEWAY=192.168.100.2</code><br><code>DNS1=192.168.100.2</code><br><code>DNS2=114.114.114.114</code></p>
+</blockquote>
+<p>如果重启网络还是连接不上，可能是NetworkManager导致的，关闭这个服务</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl stop NetworkManager
+systemctl disable NetworkManager<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/python-wen/p/11607969.html">https://www.cnblogs.com/python-wen/p/11607969.html</a></p>
+<blockquote>
+<p>我这里采用静态IP配置，网关设值为192.168.100.0  掩码是255.255.255.0 所以后续分配ip 就可以从 192.168.100.1~192.168.100.255  </p>
+</blockquote>
+<h4 id="主机硬件配置说明"><a href="#主机硬件配置说明" class="headerlink" title="主机硬件配置说明"></a>主机硬件配置说明</h4><table>
+<thead>
+<tr>
+<th>IP</th>
+<th>CPU</th>
+<th>内存</th>
+<th>硬盘</th>
+<th>主机名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.100.11</td>
+<td>4C</td>
+<td>6G</td>
+<td>50g</td>
+<td>master01</td>
+</tr>
+<tr>
+<td>192.168.100.12</td>
+<td>4C</td>
+<td>6G</td>
+<td>50g</td>
+<td>worker01</td>
+</tr>
+<tr>
+<td>192.168.100.13</td>
+<td>4C</td>
+<td>6G</td>
+<td>50g</td>
+<td>worker02</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注意：这里分配6g内存并不会直接占用系统6g内存给当前虚拟机使用，而是动态去申请的</p>
+</blockquote>
+<p>配置方式从原生的静态IP的纯净的系统中关机，克隆。克隆后重新设置静态ip，然后重启，使用shell工具链接，我这里使用FinalShell链接。</p>
+<h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><h5 id="主机名配置"><a href="#主机名配置" class="headerlink" title="主机名配置"></a>主机名配置</h5><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 设置主机名</span>
+hostnamectl set-hostname xxx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<h5 id="主机名与IP地址解析"><a href="#主机名与IP地址解析" class="headerlink" title="主机名与IP地址解析"></a>主机名与IP地址解析</h5><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 在hosts后面追加内容</span>
+<span class="token function">vi</span> /etc/hosts
+<span class="token number">192.168</span>.100.11 master01
+<span class="token number">192.168</span>.100.12 worker01
+<span class="token number">192.168</span>.100.13 worker02<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h5 id="关闭防火墙配置"><a href="#关闭防火墙配置" class="headerlink" title="关闭防火墙配置"></a>关闭防火墙配置</h5><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl disable firewalld
+systemctl stop firewalld
+firewall-cmd <span class="token parameter variable">--state</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h5 id="SELINUX配置"><a href="#SELINUX配置" class="headerlink" title="SELINUX配置"></a>SELINUX配置</h5><blockquote>
+<p>SELinux在Kubernetes中的作用是提供额外的安全层，增强容器化应用程序和整个集群的安全性。它限制容器的访问权限、提供安全策略、保护文件系统，并记录安全事件，有助于保护集群免受恶意行为和攻击。</p>
+</blockquote>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sed</span> <span class="token parameter variable">-ri</span> <span class="token string">'s/SELINUX=enforcing/SELINUX=disabled/'</span> /etc/selinux/config<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h5 id="时间同步设置"><a href="#时间同步设置" class="headerlink" title="时间同步设置"></a>时间同步设置</h5><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">yum <span class="token function">install</span> ntpdate <span class="token parameter variable">-y</span>
+ntpdate time1.aliyun.com<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<h5 id="配置内核转发及网桥过滤"><a href="#配置内核转发及网桥过滤" class="headerlink" title="配置内核转发及网桥过滤"></a>配置内核转发及网桥过滤</h5><p>添加内核转发及网桥过滤配置文件</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">></span> /etc/sysctl.d/k8s.conf <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+vm.swappiness = 0
+EOF</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>加载内核转发及网桥过滤配置文件</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sysctl</span> <span class="token parameter variable">-p</span> /etc/sysctl.d/k8s.conf<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+
+
+<h5 id="安装ipset及ipvsadm"><a href="#安装ipset及ipvsadm" class="headerlink" title="安装ipset及ipvsadm"></a>安装ipset及ipvsadm</h5><blockquote>
+<p>主要用于实现service转发。</p>
+</blockquote>
+<p>安装ipset、ipvsadm</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">yum <span class="token parameter variable">-y</span> <span class="token function">install</span> ipset ipvsadm<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p>配置ipvsadm模块加载方式</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">></span> /etc/sysconfig/modules/ipvs.modules <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+#!/bin/bash
+modprobe -- ip_vs
+modprobe -- ip_vs_rr
+modprobe -- ip_vs_wrr
+modprobe -- ip_vs_sh
+modprobe -- nf_conntrack
+EOF</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>授权、运行、检查是否加载</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">chmod</span> <span class="token number">755</span> /etc/sysconfig/modules/ipvs.modules <span class="token operator">&amp;&amp;</span> <span class="token function">bash</span> /etc/sysconfig/modules/ipvs.modules <span class="token operator">&amp;&amp;</span> lsmod <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-e</span> ip_vs <span class="token parameter variable">-e</span> nf_conntrack<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h5 id="关闭swap分区"><a href="#关闭swap分区" class="headerlink" title="关闭swap分区"></a>关闭swap分区</h5><p>在下面这行添加#注释</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">vi</span> /etc/fstab
+
+<span class="token comment"># /dev/mapper/centos-swap swap                    swap    defaults        0 0</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h3 id="安装版本说明"><a href="#安装版本说明" class="headerlink" title="安装版本说明"></a>安装版本说明</h3><blockquote>
+<p>k8s官方于 2020 年 12 月宣布弃用 dockershim，此后k8s从 1.2.0 到 1.2.3 版本如果使用 Docker 作为容器运行时会在 kubelet 启动时会打印一个弃用的警告日志，而最终k8s官方在 2022 年 4 月 的 Kubernetes 1.24 版本中完全移除了 dockershim（<a href="https://link.zhihu.com/?target=https://kubernetes.io/zh-cn/blog/2022/02/17/dockershim-faq/">弃用dockershim相关问题官方说明</a>）</p>
+</blockquote>
+<p>k8s官方在1.24版本以后移除了docker ，后续采用<code>k8s+containerd</code>方式进行搭配使用，如果后续还需使用docker 需要安装<code>cri-docker</code> 其实也就是<code>k8s+docker+cri-docker</code></p>
+<p>对于 k8s+containerd 和 k8s+docker 的两种方案网上也有网友进行了性能测试对比，前者的运行速度、效率都要比后者高，且各大公有云厂商也都往 containerd 切换，因此 k8s+containerd 的组合就成了目前最合适的方案了</p>
+<p>我们这里第一简单安装采用低版本的k8s+docker就行，后续会继续出一篇新版本 k8s1.27版本的来做</p>
+<p>版本如下：</p>
+<p>查阅地址：<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/release-1.22/build/dependencies.yaml">https://github.com/kubernetes/kubernetes/blob/release-1.22/build/dependencies.yaml</a></p>
+<p><code>kubernetes 1.21.0</code>+<code>docker 20.10</code></p>
+<h3 id="Docker环境准备（所有节点均需要安装）"><a href="#Docker环境准备（所有节点均需要安装）" class="headerlink" title="Docker环境准备（所有节点均需要安装）"></a>Docker环境准备（所有节点均需要安装）</h3><blockquote>
+<p>docker 20.10 版本安装</p>
+</blockquote>
+<h4 id="获取yum-源"><a href="#获取yum-源" class="headerlink" title="获取yum 源"></a>获取yum 源</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">wget</span> https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo <span class="token parameter variable">-O</span> /etc/yum.repos.d/docker-ce.repo
+
+<span class="token comment"># 列出所有的docker 版本 选择指定的版本安装</span>
+yum list docker-ce.x86_64 <span class="token parameter variable">--showduplicates</span> <span class="token operator">|</span> <span class="token function">sort</span> <span class="token parameter variable">-r</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h4 id="安装Docker"><a href="#安装Docker" class="headerlink" title="安装Docker"></a>安装Docker</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># --setopt=obsoletes=0  告诉Yum在处理软件包依赖关系时不考虑旧的或过时的软件包</span>
+yum <span class="token parameter variable">-y</span> <span class="token function">install</span> <span class="token parameter variable">--setopt</span><span class="token operator">=</span>obsoletes<span class="token operator">=</span><span class="token number">0</span> docker-ce-20.10.23-3.el7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<h4 id="设置docker开机启动并启动docker"><a href="#设置docker开机启动并启动docker" class="headerlink" title="设置docker开机启动并启动docker"></a>设置docker开机启动并启动docker</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 开机启动</span>
+systemctl <span class="token builtin class-name">enable</span> <span class="token function">docker</span>
+<span class="token comment"># 启动docker</span>
+systemctl start <span class="token function">docker</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h4 id="修改cgroup方式"><a href="#修改cgroup方式" class="headerlink" title="修改cgroup方式"></a>修改cgroup方式</h4><blockquote>
+<p>cgroup（控制组）是一种用于限制和隔离资源的Linux内核功能。它允许您在共享的主机上为容器分配和管理资源，例如CPU、内存、磁盘和网络等</p>
+</blockquote>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 在/etc/docker/daemon.json添加如下内容</span>
+<span class="token function">vi</span> /etc/docker/daemon.json
+<span class="token punctuation">&#123;</span>
+        <span class="token string">"exec-opts"</span><span class="token builtin class-name">:</span> <span class="token punctuation">[</span><span class="token string">"native.cgroupdriver=systemd"</span><span class="token punctuation">]</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h4 id="配置docker镜像加速"><a href="#配置docker镜像加速" class="headerlink" title="配置docker镜像加速"></a>配置docker镜像加速</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 在/etc/docker/daemon.json添加"registry-mirrors": ["https://jjwt39jg.mirror.aliyuncs.com"]</span>
+<span class="token comment"># 下面为当前最终版本</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token string">"exec-opts"</span><span class="token builtin class-name">:</span> <span class="token punctuation">[</span><span class="token string">"native.cgroupdriver=systemd"</span><span class="token punctuation">]</span>,
+  <span class="token string">"registry-mirrors"</span><span class="token builtin class-name">:</span> <span class="token punctuation">[</span>
+  	<span class="token string">"https://jjwt39jg.mirror.aliyuncs.com"</span>,
+  	<span class="token string">"https://registry.docker-cn.com"</span>,
+	<span class="token string">"http://hub-mirror.c.163.com"</span>,
+	<span class="token string">"https://docker.mirrors.ustc.edu.cn"</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">&#125;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>重启docker</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> systemctl daemon-reload
+<span class="token function">sudo</span> systemctl restart <span class="token function">docker</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<h4 id="dokcer卸载"><a href="#dokcer卸载" class="headerlink" title="dokcer卸载"></a>dokcer卸载</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment">#杀死所有运行容器</span>
+<span class="token function">docker</span> <span class="token function">kill</span> <span class="token variable"><span class="token variable">$(</span><span class="token function">docker</span> <span class="token function">ps</span> <span class="token parameter variable">-a</span> <span class="token parameter variable">-q</span><span class="token variable">)</span></span>
+<span class="token comment">#删除所有容器</span>
+<span class="token function">docker</span> <span class="token function">rm</span> <span class="token variable"><span class="token variable">$(</span><span class="token function">docker</span> <span class="token function">ps</span> <span class="token parameter variable">-a</span> <span class="token parameter variable">-q</span><span class="token variable">)</span></span>
+<span class="token comment">#删除所有镜像</span>
+<span class="token function">docker</span> rmi <span class="token variable"><span class="token variable">$(</span><span class="token function">docker</span> images <span class="token parameter variable">-q</span><span class="token variable">)</span></span>
+
+<span class="token comment">#停止docker相关服务</span>
+<span class="token function">sudo</span> systemctl stop docker.socket
+<span class="token function">sudo</span> systemctl stop docker.service
+
+<span class="token comment">#停止docker服务</span>
+systemctl stop <span class="token function">docker</span>
+
+<span class="token comment">#删除存储目录</span>
+<span class="token function">rm</span> <span class="token parameter variable">-rf</span> /etc/docker
+<span class="token function">rm</span> <span class="token parameter variable">-rf</span> /run/docker
+<span class="token function">rm</span> <span class="token parameter variable">-rf</span> /var/lib/dockershim
+<span class="token function">rm</span> <span class="token parameter variable">-rf</span> /var/lib/docker
+
+<span class="token comment">#查看docker 安装的包</span>
+yum list installed <span class="token operator">|</span> <span class="token function">grep</span> <span class="token function">docker</span>
+
+<span class="token comment"># 卸载docker相关安装包</span>
+yum remove docker-*<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+
+
+<h3 id="安装containerd"><a href="#安装containerd" class="headerlink" title="安装containerd"></a><strong>安装containerd</strong></h3><blockquote>
+<p>我们当前安装 <code>kubernetes 1.21.0</code>+<code>docker 20.10</code>，此步骤跳过</p>
+</blockquote>
+<h4 id="安装依赖软件包"><a href="#安装依赖软件包" class="headerlink" title="安装依赖软件包"></a>安装依赖软件包</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">yum <span class="token parameter variable">-y</span> <span class="token function">install</span> yum-utils device-mapper-persistent-data lvm2<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h4 id="添加阿里Docker源"><a href="#添加阿里Docker源" class="headerlink" title="添加阿里Docker源"></a>添加阿里Docker源</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h4 id="添加overlay和netfilter模块"><a href="#添加overlay和netfilter模块" class="headerlink" title="添加overlay和netfilter模块"></a>添加overlay和netfilter模块</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">>></span>/etc/modules-load.d/containerd.conf <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+overlay
+br_netfilter
+EOF</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h4 id="安装Containerd，这里安装最新版本"><a href="#安装Containerd，这里安装最新版本" class="headerlink" title="安装Containerd，这里安装最新版本"></a>安装Containerd，这里安装最新版本</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">yum <span class="token parameter variable">-y</span> <span class="token function">install</span> containerd.io<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h4 id="创建Containerd的配置文件"><a href="#创建Containerd的配置文件" class="headerlink" title="创建Containerd的配置文件"></a>创建Containerd的配置文件</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mkdir</span> <span class="token parameter variable">-p</span> /etc/containerd
+ 
+containerd config default <span class="token operator">></span> /etc/containerd/config.toml
+ 
+<span class="token function">sed</span> <span class="token parameter variable">-i</span> <span class="token string">'/SystemdCgroup/s/false/true/g'</span> /etc/containerd/config.toml
+ 
+<span class="token function">sed</span> <span class="token parameter variable">-i</span> <span class="token string">'/sandbox_image/s/registry.k8s.io/registry.aliyuncs.com\/google_containers/g'</span> /etc/containerd/config.toml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h4 id="启动containerd"><a href="#启动containerd" class="headerlink" title="启动containerd"></a>启动containerd</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl <span class="token builtin class-name">enable</span> containerd
+systemctl start containerd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<h4 id="验证containerd是否安装成功"><a href="#验证containerd是否安装成功" class="headerlink" title="验证containerd是否安装成功"></a>验证containerd是否安装成功</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">containerd <span class="token parameter variable">-v</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h3 id="Kubernetes-1-21-0-（单master）集群部署"><a href="#Kubernetes-1-21-0-（单master）集群部署" class="headerlink" title="Kubernetes 1.21.0 （单master）集群部署"></a>Kubernetes 1.21.0 （单master）集群部署</h3><h4 id="kubeadm、kubelet、kubectl安装"><a href="#kubeadm、kubelet、kubectl安装" class="headerlink" title="kubeadm、kubelet、kubectl安装"></a>kubeadm、kubelet、kubectl安装</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>kubeadm</th>
+<th>kubelet</th>
+<th>kubectl</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>版本</td>
+<td>1.21.0</td>
+<td>1.21.0</td>
+<td>1.21.0</td>
+</tr>
+<tr>
+<td>安装位置</td>
+<td>集群所有主机</td>
+<td>集群所有主机</td>
+<td>集群所有主机</td>
+</tr>
+<tr>
+<td>作用</td>
+<td>初始化集群、管理集群等</td>
+<td>用于接收api-server指令，对pod生命周期进行管理</td>
+<td>集群应用命令行管理工具</td>
+</tr>
+</tbody></table>
+<h5 id="配置yum源"><a href="#配置yum源" class="headerlink" title="配置yum源"></a>配置yum源</h5><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># k8s源,没有就创建</span>
+<span class="token function">vi</span> /etc/yum.repos.d/kubernetes.repo
+
+<span class="token punctuation">[</span>kubernetes<span class="token punctuation">]</span>
+<span class="token assign-left variable">name</span><span class="token operator">=</span>Kubernetes
+<span class="token assign-left variable">baseurl</span><span class="token operator">=</span>https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+<span class="token assign-left variable">enabled</span><span class="token operator">=</span><span class="token number">1</span>
+<span class="token assign-left variable">gpgcheck</span><span class="token operator">=</span><span class="token number">1</span>
+<span class="token assign-left variable">repo_gpgcheck</span><span class="token operator">=</span><span class="token number">0</span>
+<span class="token assign-left variable">gpgkey</span><span class="token operator">=</span>https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h5 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h5><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">yum <span class="token function">install</span> <span class="token parameter variable">-y</span> kubelet-1.21.0 kubeadm-1.21.0 kubectl-1.21.0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h5 id="配置kubelet"><a href="#配置kubelet" class="headerlink" title="配置kubelet"></a>配置kubelet</h5><blockquote>
+<p>保证docker使用的cgroupdriver与kubelet使用的cgroup的一致性</p>
+</blockquote>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># vi /etc/sysconfig/kubelet</span>
+<span class="token assign-left variable">KUBELET_EXTRA_ARGS</span><span class="token operator">=</span><span class="token string">"--cgroup-driver=systemd"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<h5 id="设置kubelet为开机自启动并启动"><a href="#设置kubelet为开机自启动并启动" class="headerlink" title="设置kubelet为开机自启动并启动"></a>设置kubelet为开机自启动并启动</h5><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl <span class="token builtin class-name">enable</span> kubelet <span class="token operator">&amp;&amp;</span> systemctl restart kubelet<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h4 id="集群初始化（master初始化）"><a href="#集群初始化（master初始化）" class="headerlink" title="集群初始化（master初始化）"></a>集群初始化（master初始化）</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment">#镜像清理</span>
+<span class="token function">docker</span> system prune <span class="token parameter variable">-a</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+
+
+<h5 id="方式一：先下载镜像"><a href="#方式一：先下载镜像" class="headerlink" title="方式一：先下载镜像"></a>方式一：先下载镜像</h5><p> <strong>集群镜像准备</strong></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubeadm config images list --kubernetes-version<span class="token operator">=</span>v1.21.0
+
+<span class="token comment">#返回如下</span>
+k8s.gcr.io/kube-apiserver:v1.21.0
+k8s.gcr.io/kube-controller-manager:v1.21.0
+k8s.gcr.io/kube-scheduler:v1.21.0
+k8s.gcr.io/kube-proxy:v1.21.0
+k8s.gcr.io/pause:3.4.1
+k8s.gcr.io/etcd:3.4.13-0
+k8s.gcr.io/coredns/coredns:v1.8.0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p><strong>脚本下载</strong></p>
+<blockquote>
+<p>官网 k8s.gcr.io 由于网络原因下载不下来</p>
+<p>这里选用镜像下载</p>
+<p> registry.cn-hangzhou.aliyuncs.com&#x2F;google_containers&#x2F; 该镜像中 pause:3.4.1和 etcd:3.4.13-0 找不到 原因目前未知</p>
+<p> registry.aliyuncs.com&#x2F;google_containers&#x2F; 目前可行 就用它了</p>
+</blockquote>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># vi image_download.sh</span>
+
+<span class="token comment">#!/bin/bash</span>
+<span class="token assign-left variable">images_list</span><span class="token operator">=</span>'
+registry.aliyuncs.com/google_containers/kube-apiserver:v1.21.0
+registry.aliyuncs.com/google_containers/kube-controller-manager:v1.21.0
+registry.aliyuncs.com/google_containers/kube-scheduler:v1.21.0
+registry.aliyuncs.com/google_containers/kube-proxy:v1.21.0
+registry.aliyuncs.com/google_containers/pause:3.4.1
+registry.aliyuncs.com/google_containers/etcd:3.4.13-0
+registry.aliyuncs.com/google_containers/coredns/coredns:v1.8.0
+
+<span class="token keyword">for</span> <span class="token for-or-select variable">i</span> <span class="token keyword">in</span> <span class="token variable">$images_list</span>
+<span class="token keyword">do</span>
+        <span class="token function">docker</span> pull <span class="token variable">$i</span>
+<span class="token keyword">done</span>
+
+<span class="token function">docker</span> save <span class="token parameter variable">-o</span> k8s-1-27-0.tar <span class="token variable">$images_list</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p><strong>执行</strong></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sh</span> image_download.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p><strong>然后执行集群初始化</strong></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubeadm init --kubernetes-version<span class="token operator">=</span>v1.21.0 --pod-network-cidr<span class="token operator">=</span><span class="token number">10.244</span>.0.0/16 --apiserver-advertise-address<span class="token operator">=</span><span class="token number">192.168</span>.100.11<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h6 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h6><p>方式一执行<strong>集群初始化</strong>的时候还是会走k8s.gcr.io，所以应该从阿里云下下来后，重新tag 打成 k8s.gcr.io下面的包再执行初始化</p>
+<h5 id="方式二：使用阿里云镜像"><a href="#方式二：使用阿里云镜像" class="headerlink" title="方式二：使用阿里云镜像"></a>方式二：使用阿里云镜像</h5><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubeadm init --kubernetes-version<span class="token operator">=</span>v1.21.0 --pod-network-cidr<span class="token operator">=</span><span class="token number">10.244</span>.0.0/16 --apiserver-advertise-address<span class="token operator">=</span><span class="token number">192.168</span>.100.11 --image-repository<span class="token operator">=</span>registry.aliyuncs.com/google_containers<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h6 id="遇到的问题-1"><a href="#遇到的问题-1" class="headerlink" title="遇到的问题"></a>遇到的问题</h6><p>failed to pull image registry.aliyuncs.com&#x2F;google_containers&#x2F;coredns&#x2F;coredns:v1.8.0</p>
+<p>原因：</p>
+<p><strong>安装时需要从 k8s.gcr.io 拉取镜像，但是该网站被我国屏蔽了，国内没法正常访问导致没法正常进行kubernetes正常安装,从Docker官方默认镜像平台拉取镜像并重新打tag的方式来绕过对 k8s.gcr.io 的访问</strong></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment">#从docker官网拉取</span>
+<span class="token function">docker</span> pull coredns/coredns:1.8.0
+<span class="token comment">#重新打标签</span>
+<span class="token function">docker</span> tag coredns/coredns:1.8.0 registry.aliyuncs.com/google_containers/coredns/coredns:v1.8.0
+<span class="token comment"># 删除旧的镜像</span>
+<span class="token function">docker</span> rmi coredns/coredns:1.8.0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+
+
+<p>此时会生成从节点加入主节点的链接</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>init<span class="token punctuation">]</span> Using Kubernetes version: v1.21.0
+<span class="token punctuation">[</span>preflight<span class="token punctuation">]</span> Running pre-flight checks
+<span class="token punctuation">[</span>preflight<span class="token punctuation">]</span> Pulling images required <span class="token keyword">for</span> setting up a Kubernetes cluster
+<span class="token punctuation">[</span>preflight<span class="token punctuation">]</span> This might take a minute or two, depending on the speed of your internet connection
+<span class="token punctuation">[</span>preflight<span class="token punctuation">]</span> You can also perform this action <span class="token keyword">in</span> beforehand using <span class="token string">'kubeadm config images pull'</span>
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Using certificateDir folder <span class="token string">"/etc/kubernetes/pki"</span>
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"ca"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"apiserver"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> apiserver serving cert is signed <span class="token keyword">for</span> DNS names <span class="token punctuation">[</span>kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local master01<span class="token punctuation">]</span> and IPs <span class="token punctuation">[</span><span class="token number">10.96</span>.0.1 <span class="token number">192.168</span>.100.11<span class="token punctuation">]</span>
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"apiserver-kubelet-client"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"front-proxy-ca"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"front-proxy-client"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"etcd/ca"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"etcd/server"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> etcd/server serving cert is signed <span class="token keyword">for</span> DNS names <span class="token punctuation">[</span>localhost master01<span class="token punctuation">]</span> and IPs <span class="token punctuation">[</span><span class="token number">192.168</span>.100.11 <span class="token number">127.0</span>.0.1 ::1<span class="token punctuation">]</span>
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"etcd/peer"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> etcd/peer serving cert is signed <span class="token keyword">for</span> DNS names <span class="token punctuation">[</span>localhost master01<span class="token punctuation">]</span> and IPs <span class="token punctuation">[</span><span class="token number">192.168</span>.100.11 <span class="token number">127.0</span>.0.1 ::1<span class="token punctuation">]</span>
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"etcd/healthcheck-client"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"apiserver-etcd-client"</span> certificate and key
+<span class="token punctuation">[</span>certs<span class="token punctuation">]</span> Generating <span class="token string">"sa"</span> key and public key
+<span class="token punctuation">[</span>kubeconfig<span class="token punctuation">]</span> Using kubeconfig folder <span class="token string">"/etc/kubernetes"</span>
+<span class="token punctuation">[</span>kubeconfig<span class="token punctuation">]</span> Writing <span class="token string">"admin.conf"</span> kubeconfig <span class="token function">file</span>
+<span class="token punctuation">[</span>kubeconfig<span class="token punctuation">]</span> Writing <span class="token string">"kubelet.conf"</span> kubeconfig <span class="token function">file</span>
+<span class="token punctuation">[</span>kubeconfig<span class="token punctuation">]</span> Writing <span class="token string">"controller-manager.conf"</span> kubeconfig <span class="token function">file</span>
+<span class="token punctuation">[</span>kubeconfig<span class="token punctuation">]</span> Writing <span class="token string">"scheduler.conf"</span> kubeconfig <span class="token function">file</span>
+<span class="token punctuation">[</span>kubelet-start<span class="token punctuation">]</span> Writing kubelet environment <span class="token function">file</span> with flags to <span class="token function">file</span> <span class="token string">"/var/lib/kubelet/kubeadm-flags.env"</span>
+<span class="token punctuation">[</span>kubelet-start<span class="token punctuation">]</span> Writing kubelet configuration to <span class="token function">file</span> <span class="token string">"/var/lib/kubelet/config.yaml"</span>
+<span class="token punctuation">[</span>kubelet-start<span class="token punctuation">]</span> Starting the kubelet
+<span class="token punctuation">[</span>control-plane<span class="token punctuation">]</span> Using manifest folder <span class="token string">"/etc/kubernetes/manifests"</span>
+<span class="token punctuation">[</span>control-plane<span class="token punctuation">]</span> Creating static Pod manifest <span class="token keyword">for</span> <span class="token string">"kube-apiserver"</span>
+<span class="token punctuation">[</span>control-plane<span class="token punctuation">]</span> Creating static Pod manifest <span class="token keyword">for</span> <span class="token string">"kube-controller-manager"</span>
+<span class="token punctuation">[</span>control-plane<span class="token punctuation">]</span> Creating static Pod manifest <span class="token keyword">for</span> <span class="token string">"kube-scheduler"</span>
+<span class="token punctuation">[</span>etcd<span class="token punctuation">]</span> Creating static Pod manifest <span class="token keyword">for</span> <span class="token builtin class-name">local</span> etcd <span class="token keyword">in</span> <span class="token string">"/etc/kubernetes/manifests"</span>
+<span class="token punctuation">[</span>wait-control-plane<span class="token punctuation">]</span> Waiting <span class="token keyword">for</span> the kubelet to boot up the control plane as static Pods from directory <span class="token string">"/etc/kubernetes/manifests"</span><span class="token builtin class-name">.</span> This can take up to 4m0s
+<span class="token punctuation">[</span>kubelet-check<span class="token punctuation">]</span> Initial <span class="token function">timeout</span> of 40s passed.
+<span class="token punctuation">[</span>apiclient<span class="token punctuation">]</span> All control plane components are healthy after <span class="token number">56.002741</span> seconds
+<span class="token punctuation">[</span>upload-config<span class="token punctuation">]</span> Storing the configuration used <span class="token keyword">in</span> ConfigMap <span class="token string">"kubeadm-config"</span> <span class="token keyword">in</span> the <span class="token string">"kube-system"</span> Namespace
+<span class="token punctuation">[</span>kubelet<span class="token punctuation">]</span> Creating a ConfigMap <span class="token string">"kubelet-config-1.21"</span> <span class="token keyword">in</span> namespace kube-system with the configuration <span class="token keyword">for</span> the kubelets <span class="token keyword">in</span> the cluster
+<span class="token punctuation">[</span>upload-certs<span class="token punctuation">]</span> Skipping phase. Please see --upload-certs
+<span class="token punctuation">[</span>mark-control-plane<span class="token punctuation">]</span> Marking the <span class="token function">node</span> master01 as control-plane by adding the labels: <span class="token punctuation">[</span>node-role.kubernetes.io/master<span class="token punctuation">(</span>deprecated<span class="token punctuation">)</span> node-role.kubernetes.io/control-plane node.kubernetes.io/exclude-from-external-load-balancers<span class="token punctuation">]</span>
+<span class="token punctuation">[</span>mark-control-plane<span class="token punctuation">]</span> Marking the <span class="token function">node</span> master01 as control-plane by adding the taints <span class="token punctuation">[</span>node-role.kubernetes.io/master:NoSchedule<span class="token punctuation">]</span>
+<span class="token punctuation">[</span>bootstrap-token<span class="token punctuation">]</span> Using token: 4x919n.wofqxskn85v5skmj
+<span class="token punctuation">[</span>bootstrap-token<span class="token punctuation">]</span> Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
+<span class="token punctuation">[</span>bootstrap-token<span class="token punctuation">]</span> configured RBAC rules to allow Node Bootstrap tokens to get nodes
+<span class="token punctuation">[</span>bootstrap-token<span class="token punctuation">]</span> configured RBAC rules to allow Node Bootstrap tokens to post CSRs <span class="token keyword">in</span> order <span class="token keyword">for</span> nodes to get long term certificate credentials
+<span class="token punctuation">[</span>bootstrap-token<span class="token punctuation">]</span> configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+<span class="token punctuation">[</span>bootstrap-token<span class="token punctuation">]</span> configured RBAC rules to allow certificate rotation <span class="token keyword">for</span> all <span class="token function">node</span> client certificates <span class="token keyword">in</span> the cluster
+<span class="token punctuation">[</span>bootstrap-token<span class="token punctuation">]</span> Creating the <span class="token string">"cluster-info"</span> ConfigMap <span class="token keyword">in</span> the <span class="token string">"kube-public"</span> namespace
+<span class="token punctuation">[</span>kubelet-finalize<span class="token punctuation">]</span> Updating <span class="token string">"/etc/kubernetes/kubelet.conf"</span> to point to a rotatable kubelet client certificate and key
+<span class="token punctuation">[</span>addons<span class="token punctuation">]</span> Applied essential addon: CoreDNS
+<span class="token punctuation">[</span>addons<span class="token punctuation">]</span> Applied essential addon: kube-proxy
+
+Your Kubernetes control-plane has initialized successfully<span class="token operator">!</span>
+
+To start using your cluster, you need to run the following as a regular user:
+
+  <span class="token function">mkdir</span> <span class="token parameter variable">-p</span> <span class="token environment constant">$HOME</span>/.kube
+  <span class="token function">sudo</span> <span class="token function">cp</span> <span class="token parameter variable">-i</span> /etc/kubernetes/admin.conf <span class="token environment constant">$HOME</span>/.kube/config
+  <span class="token function">sudo</span> <span class="token function">chown</span> <span class="token variable"><span class="token variable">$(</span><span class="token function">id</span> <span class="token parameter variable">-u</span><span class="token variable">)</span></span><span class="token builtin class-name">:</span><span class="token variable"><span class="token variable">$(</span><span class="token function">id</span> <span class="token parameter variable">-g</span><span class="token variable">)</span></span> <span class="token environment constant">$HOME</span>/.kube/config
+
+Alternatively, <span class="token keyword">if</span> you are the root user, you can run:
+
+  <span class="token builtin class-name">export</span> <span class="token assign-left variable">KUBECONFIG</span><span class="token operator">=</span>/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run <span class="token string">"kubectl apply -f [podnetwork].yaml"</span> with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can <span class="token function">join</span> any number of worker nodes by running the following on each as root:
+
+kubeadm <span class="token function">join</span> <span class="token number">192.168</span>.100.11:6443 <span class="token parameter variable">--token</span> 4x919n.wofqxskn85v5skmj <span class="token punctuation">\</span>
+        --discovery-token-ca-cert-hash sha256:d0f8229aec07486e0f42181ef44069762b57910f1dd8d78edb9b5e64ccf82b9c <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+
+
+<p>然后更新生成的信息 主节点执行(<strong>master01执行</strong>)</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mkdir</span> <span class="token parameter variable">-p</span> <span class="token environment constant">$HOME</span>/.kube
+<span class="token function">sudo</span> <span class="token function">cp</span> <span class="token parameter variable">-i</span> /etc/kubernetes/admin.conf <span class="token environment constant">$HOME</span>/.kube/config
+<span class="token function">sudo</span> <span class="token function">chown</span> <span class="token variable"><span class="token variable">$(</span><span class="token function">id</span> <span class="token parameter variable">-u</span><span class="token variable">)</span></span><span class="token builtin class-name">:</span><span class="token variable"><span class="token variable">$(</span><span class="token function">id</span> <span class="token parameter variable">-g</span><span class="token variable">)</span></span> <span class="token environment constant">$HOME</span>/.kube/config
+
+<span class="token builtin class-name">export</span> <span class="token assign-left variable">KUBECONFIG</span><span class="token operator">=</span>/etc/kubernetes/admin.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>两个从节点（worker01,worker02）执行加入操作，然后在两个从节点 worker01 和worker02上使用kubeadm 加入操作</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubeadm <span class="token function">join</span> <span class="token number">192.168</span>.100.11:6443 <span class="token parameter variable">--token</span> 4x919n.wofqxskn85v5skmj <span class="token punctuation">\</span>
+        --discovery-token-ca-cert-hash sha256:d0f8229aec07486e0f42181ef44069762b57910f1dd8d78edb9b5e64ccf82b9c <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<blockquote>
+<p>如果加入报错节点存在可以执行重置后重新加入 <code>kubeadm reset</code></p>
+</blockquote>
+<p>如果忘了可以使用下面的这行命令重新生成</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubeadm token create --print-join-command<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p>在主节点上查看从节点是否加入</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubectl  get <span class="token function">node</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h4 id="集群网络准备"><a href="#集群网络准备" class="headerlink" title="集群网络准备"></a>集群网络准备</h4><blockquote>
+<p>使用calico部署集群网络</p>
+<p>安装参考网址：<a target="_blank" rel="noopener" href="https://projectcalico.docs.tigera.io/about/about-calico">https://projectcalico.docs.tigera.io/about/about-calico</a></p>
+<p>看 <a target="_blank" rel="noopener" href="https://docs.tigera.io/archive/v3.23/getting-started/kubernetes/requirements">https://docs.tigera.io/archive/v3.23/getting-started/kubernetes/requirements</a> 介绍</p>
+<p>我们这里k8s用的版本是1.21.0 所对应的calico 版本是v3.23</p>
+</blockquote>
+<h5 id="第一种：基于operator安装calico"><a href="#第一种：基于operator安装calico" class="headerlink" title="第一种：基于operator安装calico"></a>第一种：基于operator安装calico</h5><h6 id="下载operator资源清单文件"><a href="#下载operator资源清单文件" class="headerlink" title="下载operator资源清单文件"></a>下载operator资源清单文件</h6><p>如果不能直接应用（网络原因 可以先找个下载下来再使用apply应用）</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 网络原因，宿主机(需要具备访问的条件)手动访问下面地址，将里面的内容放到tigera-operator.yaml中</span>
+https://projectcalico.docs.tigera.io/archive/v3.23/manifests/tigera-operator.yaml
+<span class="token function">mkdir</span> calicodir
+<span class="token builtin class-name">cd</span> calicodir
+<span class="token comment"># 应用资源清单文件，创建operator  </span>
+kubectl apply --server-side <span class="token parameter variable">-f</span> tigera-operator.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<blockquote>
+<p>上面文件过大  <code>--server-side</code> 目的解决 tigera-operator.yaml 过大导致创建失败的问题，停止使用 Client Side Apply（运行 kubectl apply 时的当前默认设置），而是使用 Server Side Apply，它不会将 last-applied-configuration 注释添加到对象。</p>
+<p>kubectl delete -f tigera-operator.yaml 先删除再创建也可以</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/lzjloveit/p/17223453.html">https://www.cnblogs.com/lzjloveit/p/17223453.html</a></p>
+</blockquote>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 网络原因，宿主机(需要具备访问的条件)手动访问下面地址，将里面的内容放到custom-resources.yaml中</span>
+https://projectcalico.docs.tigera.io/archive/v3.23/manifests/custom-resources.yaml
+<span class="token comment">#打开 custom-resources.yaml文件将cidr 改为上面 kubeadm 初始化的时候设置的 --pod-network-cidr的配置信息</span>
+cidr: <span class="token number">192.168</span>.0.0/16  改为      cidr: <span class="token number">10.244</span>.0.0/16 
+
+<span class="token comment"># 执行是需要保证上面tigera-operator.yaml 已经执行成功</span>
+kubectl apply <span class="token parameter variable">-f</span> custom-resources.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h5 id="第二种-基于calico-yml安装"><a href="#第二种-基于calico-yml安装" class="headerlink" title="第二种:基于calico.yml安装"></a>第二种:基于calico.yml安装</h5><h6 id="下载calico配置文件"><a href="#下载calico配置文件" class="headerlink" title="下载calico配置文件"></a>下载calico配置文件</h6><blockquote>
+<p>这里 也是使用3.23版本</p>
+</blockquote>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">wget</span>  https://docs.projectcalico.org/v3.23/manifests/calico.yaml  --no-check-certificate<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p>这里下载不下来就本地下载后传入服务器</p>
+<h6 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h6><figure><div class="code-wrapper"><pre class="line-numbers language-text" data-language="text"><code class="language-text">vi calico.yaml
+将
+# - name: CALICO_IPV4POOL_CIDR
+#   value: "192.168.0.0/16"
+修改为
+- name: CALICO_IPV4POOL_CIDR
+  value: "10.244.0.0/16"
+
+
+#然后直接搜索 CLUSTER_TYPE，找到下面这段
+- name: CLUSTER_TYPE
+   value: "k8s,bgp"
+#然后添加一个和 CLUSTER_TYPE 同级的IP_AUTODETECTION_METHOD字段，具体如下：
+# value 就是指定你的网卡名字，我这里网卡是 ens33，然后直接配置的通配符 ens.*
+- name: IP_AUTODETECTION_METHOD  
+  value: "interface=ens.*"<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p> 重点注意：<strong>这里不能添加时候不能使用tab只能使用空格键当做空格</strong>，不然创建的时候会报错</p>
+<h6 id="手动加载镜像（由于网络原因）"><a href="#手动加载镜像（由于网络原因）" class="headerlink" title="手动加载镜像（由于网络原因）"></a>手动加载镜像（由于网络原因）</h6><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@master01 calicodir<span class="token punctuation">]</span><span class="token comment"># cat calico.yaml |grep 'image:'</span>
+          image: docker.io/calico/cni:v3.23.5
+          image: docker.io/calico/cni:v3.23.5
+          image: docker.io/calico/node:v3.23.5
+          image: docker.io/calico/node:v3.23.5<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>calico 用的是3.23.5版本</p>
+<p>手动下载，后上传服务器解压，cd 到images目录，使用 <code>docker load -i  xxxx.tar</code> 将镜像载入到当前服务器中</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/projectcalico/calico/releases/tag/v3.23.5">https://github.com/projectcalico/calico/releases/tag/v3.23.5</a> </p>
+<h6 id="修改calico-文件"><a href="#修改calico-文件" class="headerlink" title="修改calico 文件"></a>修改calico 文件</h6><blockquote>
+<p> 修改镜从阿里云上海地区拉取</p>
+</blockquote>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> calico.yaml <span class="token operator">|</span><span class="token function">grep</span> <span class="token string">'image:'</span>
+<span class="token comment"># 此操作会保证当前calico配置文件使用的镜像和当前载入的镜像名一致</span>
+<span class="token function">sed</span> <span class="token parameter variable">-i</span> <span class="token string">'s#docker.io/##g'</span> calico.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h6 id="执行创建calico-yaml创建网络"><a href="#执行创建calico-yaml创建网络" class="headerlink" title="执行创建calico.yaml创建网络"></a>执行创建calico.yaml创建网络</h6><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubectl apply <span class="token parameter variable">-f</span> calico.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p>参考：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/khtt/p/16563088.html">https://www.cnblogs.com/khtt/p/16563088.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.lixueduan.com/posts/kubernetes/01-install/#3-%E5%AE%89%E8%A3%85-calicohttpsprojectcalicodocstigeraiogetting-startedkubernetesquickstart">https://www.lixueduan.com/posts/kubernetes/01-install/#3-%E5%AE%89%E8%A3%85-calicohttpsprojectcalicodocstigeraiogetting-startedkubernetesquickstart</a></p>
+</li>
+</ul>
+<h5 id="验证网络情况删除重装相关"><a href="#验证网络情况删除重装相关" class="headerlink" title="验证网络情况删除重装相关"></a>验证网络情况删除重装相关</h5><h6 id="停止kubelet服务"><a href="#停止kubelet服务" class="headerlink" title="停止kubelet服务"></a>停止kubelet服务</h6><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl stop kubelet
+systemctl disable kubelet<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<h6 id="使用-kubeadm-重置"><a href="#使用-kubeadm-重置" class="headerlink" title="使用 kubeadm 重置"></a>使用 kubeadm 重置</h6><figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">kubeadm reset<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<h6 id="卸载相关应用"><a href="#卸载相关应用" class="headerlink" title="卸载相关应用"></a>卸载相关应用</h6><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> yum remove <span class="token parameter variable">-y</span> kubeadm kubectl kubelet kubernetes-cni kube*   
+<span class="token function">sudo</span> yum autoremove <span class="token parameter variable">-y</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<h6 id="配置清理"><a href="#配置清理" class="headerlink" title="配置清理"></a>配置清理</h6><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">rm</span> <span class="token parameter variable">-rf</span> /etc/systemd/system/kubelet.service
+<span class="token function">rm</span> <span class="token parameter variable">-rf</span> /etc/systemd/system/kube*<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+
+<h6 id="手动清理kubernetes"><a href="#手动清理kubernetes" class="headerlink" title="手动清理kubernetes"></a>手动清理kubernetes</h6><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">rm</span> <span class="token parameter variable">-rf</span> ~/.kube
+<span class="token function">sudo</span> <span class="token function">rm</span> <span class="token parameter variable">-rf</span> /etc/kubernetes/
+<span class="token function">sudo</span> <span class="token function">rm</span> <span class="token parameter variable">-rf</span> /var/lib/kube*<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>此时删除失败会有占用 可执行 <code>umount $(df -HT | grep &#39;/var/lib/kubelet/pods&#39; | awk &#39;&#123;print $7&#125;&#39;)</code> 后再清理</p>
+<h4 id="子节点（worker01、worker02）加入主节点-master01"><a href="#子节点（worker01、worker02）加入主节点-master01" class="headerlink" title="子节点（worker01、worker02）加入主节点(master01)"></a>子节点（worker01、worker02）加入主节点(master01)</h4><figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubeadm <span class="token function">join</span> <span class="token number">192.168</span>.100.11:6443 <span class="token parameter variable">--token</span> vcc8xt.lc2t495ujjjf4yr9 --discovery-token-ca-cert-hash sha256:d0f8229aec07486e0f42181ef44069762b57910f1dd8d78edb9b5e64ccf82b9c<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p>注意：<strong>子节点也需要通过docker  load -i  xxx.tar 加载calico镜像</strong></p>
+<p>然后删除现有的cali-node 会自动重启</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@master01 ~<span class="token punctuation">]</span><span class="token comment"># kubectl get pods -A</span>
+NAMESPACE     NAME                                       READY   STATUS    RESTARTS   AGE
+kube-system   calico-kube-controllers-74df58766b-sxtsr   <span class="token number">1</span>/1     Running   <span class="token number">2</span>          79m
+kube-system   calico-node-llkns                          <span class="token number">1</span>/1     Running   <span class="token number">2</span>          79m
+kube-system   calico-node-sths7                          <span class="token number">1</span>/1     Running   <span class="token number">0</span>          8m32s
+kube-system   calico-node-t2mnv                          <span class="token number">1</span>/1     Running   <span class="token number">0</span>          13s
+kube-system   coredns-545d6fc579-p2f8r                   <span class="token number">1</span>/1     Running   <span class="token number">2</span>          6h57m
+kube-system   coredns-545d6fc579-wl8dn                   <span class="token number">1</span>/1     Running   <span class="token number">2</span>          6h57m
+kube-system   etcd-master01                              <span class="token number">1</span>/1     Running   <span class="token number">6</span>          6h58m
+kube-system   kube-apiserver-master01                    <span class="token number">1</span>/1     Running   <span class="token number">6</span>          6h58m
+kube-system   kube-controller-manager-master01           <span class="token number">1</span>/1     Running   <span class="token number">6</span>          6h58m
+kube-system   kube-proxy-87l6q                           <span class="token number">1</span>/1     Running   <span class="token number">0</span>          28m
+kube-system   kube-proxy-c5r5l                           <span class="token number">1</span>/1     Running   <span class="token number">5</span>          6h57m
+kube-system   kube-proxy-vb8w9                           <span class="token number">1</span>/1     Running   <span class="token number">0</span>          29m
+kube-system   kube-scheduler-master01                    <span class="token number">1</span>/1     Running   <span class="token number">5</span>          6h58m
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>删除命令</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubectl delete pod calico-node-xxx <span class="token parameter variable">-n</span> kube-system<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p>常用基础命令</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment">#查看所有的节点</span>
+kubectl get nodes
+
+<span class="token comment">#真实情况</span>
+kubectl get cs
+
+<span class="token comment">#查看管理相关的pod运行情况(calico也在这有版本再 calico-system)</span>
+kubectl get pods <span class="token parameter variable">-n</span> kube-system<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h3 id="部署应用Nginx"><a href="#部署应用Nginx" class="headerlink" title="部署应用Nginx"></a>部署应用Nginx</h3><blockquote>
+<p>先部署一个nginx，后续详细学习其中应用 service中的yaml参数含义以及写法</p>
+</blockquote>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment">#创建一个nginx目录</span>
+<span class="token function">mkdir</span> nginx
+<span class="token builtin class-name">cd</span> nginx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<figure><div class="code-wrapper"><pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token comment"># vi nginx.yaml</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> apps/v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Deployment
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> nginx<span class="token punctuation">-</span>test
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">matchLabels</span><span class="token punctuation">:</span>
+      <span class="token key atrule">app</span><span class="token punctuation">:</span> nginx
+      <span class="token key atrule">env</span><span class="token punctuation">:</span> test
+      <span class="token key atrule">owner</span><span class="token punctuation">:</span> root
+  <span class="token key atrule">replicas</span><span class="token punctuation">:</span> <span class="token number">2</span> <span class="token comment"># tells deployment to run 2 pods matching the template</span>
+  <span class="token key atrule">template</span><span class="token punctuation">:</span>
+    <span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+      <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+        <span class="token key atrule">app</span><span class="token punctuation">:</span> nginx
+        <span class="token key atrule">env</span><span class="token punctuation">:</span> test
+        <span class="token key atrule">owner</span><span class="token punctuation">:</span> root
+    <span class="token key atrule">spec</span><span class="token punctuation">:</span>
+      <span class="token key atrule">containers</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> nginx<span class="token punctuation">-</span>test
+          <span class="token key atrule">image</span><span class="token punctuation">:</span> nginx<span class="token punctuation">:</span>1.19.9
+          <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+            <span class="token punctuation">-</span> <span class="token key atrule">containerPort</span><span class="token punctuation">:</span> <span class="token number">80</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p><strong>执行创建应用</strong></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubectl apply <span class="token parameter variable">-f</span> nginx.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># vi nginx-service.yaml</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-test
+  labels:
+    run: nginx
+spec:
+  type: NodePort
+  ports:
+  - port: <span class="token number">80</span>
+    protocol: TCP
+  selector:
+    owner: root<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p><strong>执行创建服务</strong></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubectl apply <span class="token parameter variable">-f</span> nginx-service.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+
+<p>验证是否创建成功</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@master01 nginx<span class="token punctuation">]</span><span class="token comment"># kubectl get pods -o wide </span>
+NAME                          READY   STATUS    RESTARTS   AGE   IP             NODE       NOMINATED NODE   READINESS GATES
+nginx-test-7d95fb4447-52j86   <span class="token number">1</span>/1     Running   <span class="token number">0</span>          18m   <span class="token number">10.244</span>.30.66   worker02   <span class="token operator">&lt;</span>none<span class="token operator">></span>           <span class="token operator">&lt;</span>none<span class="token operator">></span>
+nginx-test-7d95fb4447-zfbgm   <span class="token number">1</span>/1     Running   <span class="token number">0</span>          18m   <span class="token number">10.244</span>.5.2     worker01   <span class="token operator">&lt;</span>none<span class="token operator">></span>           <span class="token operator">&lt;</span>none<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@master01 nginx<span class="token punctuation">]</span><span class="token comment"># kubectl get svc -o wide</span>
+NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT<span class="token punctuation">(</span>S<span class="token punctuation">)</span>        AGE   SELECTOR
+kubernetes   ClusterIP   <span class="token number">10.96</span>.0.1     <span class="token operator">&lt;</span>none<span class="token operator">></span>        <span class="token number">443</span>/TCP        24h   <span class="token operator">&lt;</span>none<span class="token operator">></span>
+nginx-test   NodePort    <span class="token number">10.110</span>.6.84   <span class="token operator">&lt;</span>none<span class="token operator">></span>        <span class="token number">80</span>:30518/TCP   18m   <span class="token assign-left variable">owner</span><span class="token operator">=</span>rancher<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>这里对应的<strong>30518</strong>就是系统默认分配的对外暴露端口</p>
+<p>访问 <a target="_blank" rel="noopener" href="http://192.168.100.11:30518/">http://192.168.100.11:30518/</a> 出现nginx首页即成功</p>
+<h3 id="安装Dashboard控制面板"><a href="#安装Dashboard控制面板" class="headerlink" title="安装Dashboard控制面板"></a>安装Dashboard控制面板</h3><p>github地址 <a target="_blank" rel="noopener" href="https://github.com/kubernetes/dashboard">https://github.com/kubernetes/dashboard</a></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mkdir</span> /root/kube-dashboard
+<span class="token builtin class-name">cd</span> /root/kube-dashboard
+<span class="token function">wget</span> https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.1/aio/deploy/recommended.yaml
+<span class="token comment"># 修改配置文件将</span>
+spec:
+  ports:
+    - port: <span class="token number">443</span>
+      targetPort: <span class="token number">8443</span>
+<span class="token comment">#改成</span>
+spec:
+  type: NodePort
+  ports:
+    - port: <span class="token number">443</span>
+      targetPort: <span class="token number">8443</span>
+      nodePort: <span class="token number">30000</span>
+      
+<span class="token comment">#修改权限将</span>
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubernetes-dashboard
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-dashboard
+    namespace: kubernetes-dashboard
+<span class="token comment">#改成</span>
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-dashboard
+    namespace: kubernetes-dashboard
+    
+<span class="token comment"># 其实就是这里   name: kubernetes-dashboard==》     name: cluster-admin</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">kubectl apply <span class="token parameter variable">-f</span> recommended.yaml
+
+<span class="token punctuation">[</span>root@master01 kube-dashboard<span class="token punctuation">]</span><span class="token comment"># kubectl get namespace</span>
+NAME                   STATUS   AGE
+default                Active   24h
+kube-node-lease        Active   24h
+kube-public            Active   24h
+kube-system            Active   24h
+kubernetes-dashboard   Active   39s
+
+<span class="token punctuation">[</span>root@master01 kube-dashboard<span class="token punctuation">]</span><span class="token comment"># kubectl get pods -n kubernetes-dashboard</span>
+NAME                                        READY   STATUS    RESTARTS   AGE
+dashboard-metrics-scraper-c45b7869d-lj5gd   <span class="token number">1</span>/1     Running   <span class="token number">1</span>          23m
+kubernetes-dashboard-6bcfd5644-gn7l5        <span class="token number">1</span>/1     Running   <span class="token number">0</span>          85s
+
+
+<span class="token punctuation">[</span>root@master01 kube-dashboard<span class="token punctuation">]</span><span class="token comment"># ss -anput|grep ":30000"</span>
+tcp    LISTEN     <span class="token number">0</span>      <span class="token number">128</span>       *:30000                 *:*                   users:<span class="token variable"><span class="token punctuation">((</span>"kube<span class="token operator">-</span>proxy"<span class="token punctuation">,</span>pid<span class="token operator">=</span><span class="token number">27644</span><span class="token punctuation">,</span>fd<span class="token operator">=</span><span class="token number">13</span><span class="token punctuation">))</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="category-chain-item">云原生</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/k8s/">#k8s</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Kubernetes(一)-基础介绍与环境搭建</div>
+      <div>https://hyq965672903.gitee.io/posts/188048a0.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>灼华</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/a292d032.html" title="Kubernetes(二)-快速使用与核心概念">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Kubernetes(二)-快速使用与核心概念</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/30a541b.html" title="MySQL进阶(五)-性能优化篇">
+                        <span class="hidden-mobile">MySQL进阶(五)-性能优化篇</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <br> <a href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral" target="_blank" rel="nofollow noopener"><span>本网站由<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" srcset="/img/loading.gif" lazyload data-original="/img/hexo_final/upyun_logo2.png" style="width:50px"></img>提供CDN加速/云存储服务</span></a>
+
+    </div>
+  
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      蜀ICP备2020032290号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"https://cdn.jsdelivr.net/gh/hyq965672903/hyq965672903.github.io/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true,"scale":0.5},"react":{"opacity":0.7},"dialog":{"enable":true,"hitokoto":true},"log":false});</script>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script></body>
+</html>
